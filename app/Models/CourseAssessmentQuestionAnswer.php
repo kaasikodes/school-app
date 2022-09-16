@@ -10,6 +10,7 @@ use App\Models\CourseAssessmentQuestion;
 class CourseAssessmentQuestionAnswer extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     public function question()
     {

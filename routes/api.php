@@ -5,11 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SchoolSessionController;
+use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CustodianController;
+use App\Http\Controllers\UserController;
 
 
 /*
@@ -33,12 +35,26 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/profile', function(Request $request) {
         return auth()->user();
     });
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/logout/{id}', [AuthController::class, 'logout']);
+
+    // user
+    Route::post('/users/{id}/update-choosenSchool', [UserController::class, 'updateChoosenSchoolId']);
+
+
+    // schools
+    // create or update
+    Route::post('/schools/save', [SchoolController::class, 'store']);
+    Route::get('/schools', [SchoolController::class, 'index']);
+    Route::get('/schools/{id}', [SchoolController::class, 'show']);
+    Route::delete('/schools/{id}', [SchoolController::class, 'destroy']);
+    Route::post('/schools/{id}/add-user', [SchoolController::class, 'addUserToSchool']);
+
 
     // sessions
     // create or update
     Route::post('/sessions/save', [SchoolSessionController::class, 'store']);
     Route::get('/sessions', [SchoolSessionController::class, 'index']);
+
 
     // departments
     // create or update
@@ -60,6 +76,19 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/courses/{id}/assign-department', [CourseController::class, 'assignDepartment']);
     Route::post('/courses/{id}/add-lesson', [CourseController::class, 'addLesson']);
     Route::get('/courses/{id}/lessons', [CourseController::class, 'courseLessons']);
+    Route::post('/courses/{id}/add-assessment', [CourseController::class, 'addAssessment']);
+    Route::get('/courses/{id}/assessments', [CourseController::class, 'courseAssessments']);
+    Route::post('/course-assessment/{id}/add-question', [CourseController::class, 'addCourseAssessmentQuestion']);
+    Route::get('/course-assessment/{id}/questions', [CourseController::class, 'courseAssessmentQuestions']);
+    Route::patch('/update-question/{id}', [CourseController::class, 'updateQuestion']);
+    Route::patch('/update-question/section/{id}', [CourseController::class, 'updateQuestionSection']);
+    Route::patch('/update-question/assessment/{id}', [CourseController::class, 'updateQuestionAssessment']);
+    Route::post('/course-assessment/{id}/save-section', [CourseController::class, 'saveCourseAssessmentSection']);
+    Route::patch('/update-assessment-section/{id}/status', [CourseController::class, 'updateAssessmentSectionActivationStatus']);
+    Route::post('/question/{id}/save-option', [CourseController::class, 'saveQuestionOption']);
+    Route::post('/question/{id}/save-participant-answer', [CourseController::class, 'savePartcipantAnswer']);
+    Route::patch('/score-answer/{id}', [CourseController::class, 'scoreAnswer']);
+    Route::post('/question/{id}/save-correct-answer', [CourseController::class, 'saveCorrectAnswer']);
 
 
 

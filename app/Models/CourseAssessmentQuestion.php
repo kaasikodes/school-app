@@ -14,13 +14,15 @@ use App\Models\CourseAssessmentQuestionOption;
 class CourseAssessmentQuestion extends Model
 {
     use HasFactory;
+    protected $guarded = [];
+
 
     public function courseAssessment()
     {
         return $this->belongsTo(CourseAssessment::class);
     }
 
-    public function possibleAnswers()
+    public function participantAnswers()
     {
         return $this->hasMany(CourseAssessmentQuestionAnswer::class);
     }

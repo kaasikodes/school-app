@@ -14,6 +14,7 @@ use App\Models\CourseAssessmentSection;
 class CourseAssessment extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     public function course()
     {

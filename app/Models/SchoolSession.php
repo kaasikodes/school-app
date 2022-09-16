@@ -14,5 +14,9 @@ class SchoolSession extends Model
     {
         return $this->belongsToMany(Level::class, 'level_school_session','school_session_id', 'level_id')->withPivot('id');
     }
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
 
 }
