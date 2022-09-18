@@ -75,6 +75,16 @@ class UserController extends Controller
     public function show($id)
     {
         //
+        $user =  User::find($id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'The user has been retrieved successfully!',
+            'user' => $user,
+            'schools' => $user->schools,
+          
+
+        ], 200);
     }
 
     /**

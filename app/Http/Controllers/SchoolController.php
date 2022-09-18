@@ -51,10 +51,14 @@ class SchoolController extends Controller
     {
         //
         //validate the request
-        // create the session
-        $result = School::updateOrCreate(['id'=> $request->id],[ 'name' => $request->name, 'description'=> $request->description, 'studentLimit'=> $request->studentLimit, 'staffLimit'=> $request->staffLimit]);
+        // create the school
+        $school = School::updateOrCreate(['id'=> $request->id],[ 'name' => $request->name, 'description'=> $request->description, 'studentLimit'=> $request->studentLimit, 'staffLimit'=> $request->staffLimit]);
 
-        return $result;
+        // add the user who created the school to :the school
+        $school->users()->syncWithoutDetaching(auth()->user()->id);
+
+
+        return ['result'=>$school, 'schools'=>auth()->user()->schools];
     }
 
     /**

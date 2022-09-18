@@ -39,6 +39,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // user
     Route::post('/users/{id}/update-choosenSchool', [UserController::class, 'updateChoosenSchoolId']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
 
 
     // schools
@@ -52,8 +53,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // sessions
     // create or update
-    Route::post('/sessions/save', [SchoolSessionController::class, 'store']);
-    Route::get('/sessions', [SchoolSessionController::class, 'index']);
+    Route::post('/sessions/create', [SchoolSessionController::class, 'store']);
+    Route::patch('/sessions/{id}', [SchoolSessionController::class, 'update']);
+    Route::get('/sessions/{id}', [SchoolSessionController::class, 'show']);
+    Route::patch('/sessions/{id}/end-session', [SchoolSessionController::class, 'endSession']);
+    Route::get('/schools/{id}/sessions', [SchoolSessionController::class, 'index']);
 
 
     // departments

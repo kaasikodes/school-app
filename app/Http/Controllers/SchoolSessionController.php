@@ -13,10 +13,10 @@ class SchoolSessionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($id)
     {
         //
-        $results = SchoolSession::all();
+        $results = SchoolSession::where('school_id',$id)->paginate();
         return $results;
     }
 
@@ -38,9 +38,29 @@ class SchoolSessionController extends Controller
      */
     public function store(Request $request)
     {
+        $currentSchoolSession = SchoolSession::where('school_id',$request->schoolId)->orderBy('starts', 'desc')->first();
+        if($currentSchoolSession && $currentSchoolSession->ends === null){
+            return response()->json([
+                'status' => false,
+                'message' => 'You cannot create a new session without ending the current one!',
+                'data' => null,
+               
+              
+    
+            ], 405);
+
+        }
         //validate the request
         // create the session
-        $session = SchoolSession::updateOrCreate(['id'=> $request->id],['starts'=> $request->starts, 'ends'=> $request->ends, 'name' => $request->name, 'description'=> $request->description]);
+        $session = SchoolSession::create(['starts'=> $request->starts, 'ends'=> $request->ends, 'name' => $request->name, 'description'=> $request->description, 'school_id'=>$request->schoolId]);
+        return response()->json([
+            'status' => true,
+            'message' => 'School session has been created successfully!',
+            'data' => $session,
+           
+          
+
+        ], 200);
 
         return $session;
     }
@@ -54,6 +74,26 @@ class SchoolSessionController extends Controller
     public function show($id)
     {
         //
+        $session =SchoolSession::find($id);
+        if($session ===  null){
+            return response()->json([
+                'status' => false,
+                'message' => 'School session doesn\'t exist.',
+                'data' => null,
+               
+              
+    
+            ], 400);
+
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'School session retrieved successfully',
+            'data' => $session,
+           
+          
+
+        ], 200);
     }
 
     /**
@@ -77,7 +117,58 @@ class SchoolSessionController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $session =SchoolSession::find($id);
+        if($session ===  null){
+            return response()->json([
+                'status' => false,
+                'message' => 'School session doesn\'t exist.',
+                'data' => null,
+               
+              
+    
+            ], 400);
+
+        }
+
+        //validate the request
+        // update the session
+        $session = $session->update(['starts'=> $request->starts, 'ends'=> $request->ends, 'name' => $request->name, 'description'=> $request->description]);
+        return response()->json([
+            'status' => true,
+            'message' => 'School session has been updated successfully!',
+            'data' => $session,
+           
+          
+
+        ], 200);
     }
+    public function endSession(Request $request, $id){
+        $session =SchoolSession::find($id);
+        if($session ===  null){
+            return response()->json([
+                'status' => false,
+                'message' => 'School session doesn\'t exist.',
+                'data' => null,
+               
+              
+    
+            ], 400);
+
+        }
+        $session->ends = $request->ends;
+        $session->save();
+        return response()->json([
+            'status' => true,
+            'message' => 'School has ended successfully',
+            'data' => $session,
+           
+          
+
+        ], 200);
+
+
+    }
+
 
     /**
      * Remove the specified resource from storage.
