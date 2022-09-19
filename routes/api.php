@@ -68,6 +68,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //levels
     Route::post('/levels/save', [LevelController::class, 'store']);
     Route::post('/levels/{id}/assign-session', [LevelController::class, 'assignToSession']);
+    Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
+    Route::get('/levels/{id}', [LevelController::class, 'show']);
 
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
@@ -114,7 +116,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 
 });
-Route::get('/levels', [LevelController::class, 'index']);
+// Route::get('/levels', [LevelController::class, 'index']);
 
 
 

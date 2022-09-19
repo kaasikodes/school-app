@@ -13,10 +13,16 @@ class SchoolSessionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id)
+    public function index(Request $request, $id)
     {
         //
-        $results = SchoolSession::where('school_id',$id)->paginate();
+        $perPage = $request->limit ? $request->limit : 4;
+
+        $results = SchoolSession::where('school_id',$id)->paginate($perPage);
+        if($request->searchTerm){
+            $results = SchoolSession::where('school_id',$id)->whereLike(['name','ends','starts',], $request->searchTerm)->paginate($perPage);
+        }
+
         return $results;
     }
 
@@ -106,6 +112,7 @@ class SchoolSessionController extends Controller
     {
         //
     }
+  
 
     /**
      * Update the specified resource in storage.

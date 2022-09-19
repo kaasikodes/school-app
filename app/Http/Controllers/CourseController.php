@@ -50,7 +50,7 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         //
-        $level = Course::updateOrCreate(['id' => $request->id], ['name' => $request->name, 'description' => $request->description, 'department_id' => $request->departmentId]);
+        $level = Course::updateOrCreate(['id' => $request->id], ['name' => $request->name, 'description' => $request->description, 'department_id' => $request->departmentId, 'school_id' =>$request->schoolId]);
         return $level;
     }
     public function assignToLevel(Request $request, $id)
