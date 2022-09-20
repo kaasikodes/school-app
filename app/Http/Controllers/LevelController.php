@@ -45,7 +45,7 @@ class LevelController extends Controller
     public function store(Request $request)
     {
         // only perform operation when schoolId is present
-        if($request->schoolId ===  Level::find($id)->school_id){
+        if($request->id && $request->schoolId !==  Level::find($request->id)->school_id  ){
             return 'Not allowed';
         }
         //

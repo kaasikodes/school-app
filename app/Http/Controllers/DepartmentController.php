@@ -13,9 +13,16 @@ class DepartmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $id)
     {
-        $results = Department::all();
+        // PLease use resoURCES
+        $perPage = $request->limit ? $request->limit : 4;
+
+        $results = Department::where('school_id',$id)->paginate($perPage);
+        if($request->searchTerm){
+            $results = Department::where('school_id',$id)->whereLike(['name'], $request->searchTerm)->paginate($perPage);
+        }
+
         return $results;
     }
 
@@ -38,8 +45,12 @@ class DepartmentController extends Controller
     public function store(Request $request)
     {
          //validate the request
+         if($request->id && $request->schoolId !==  Department::find($request->id)->school_id  ){
+            return 'Not allowed';
+        }
         // create the departments
-        $department = Department::updateOrCreate(['id'=> $request->id],[ 'name' => $request->name, 'description'=> $request->description]);
+
+        $department = Department::updateOrCreate(['id'=> $request->id],[ 'name' => $request->name, 'description'=> $request->description, 'school_id'=>$request->schoolId]);
 
         return $department;
     }
@@ -53,6 +64,26 @@ class DepartmentController extends Controller
     public function show($id)
     {
         //
+        $department =Department::find($id);
+        if($department ===  null){
+            return response()->json([
+                'status' => false,
+                'message' => 'This department doesn\'t exist.',
+                'data' => null,
+               
+              
+    
+            ], 400);
+
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'This department retrieved successfully',
+            'data' => $department,
+           
+          
+
+        ], 200);
     }
 
     /**

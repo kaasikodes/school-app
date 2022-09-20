@@ -63,7 +63,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // departments
     // create or update
     Route::post('/departments/save', [DepartmentController::class, 'store']);
-    Route::get('/departments', [DepartmentController::class, 'index']);
+    Route::get('/schools/{id}/departments', [DepartmentController::class, 'index']);
+    Route::get('/departments/{id}', [DepartmentController::class, 'show']);
+
 
     //levels
     Route::post('/levels/save', [LevelController::class, 'store']);
