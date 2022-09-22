@@ -13,12 +13,20 @@ class StaffController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $id)
     {
-        //
-        $results = Staff::all();
+        $perPage = $request->limit ? $request->limit : 4;
+
+        
         // return $results;
-        return StaffResource::collection($results);
+        $results = Staff::where('school_id',$id)->paginate($perPage);
+        if($request->searchTerm){
+            $results = Staff::where('school_id',$id)->whereLike(['user.name'], $request->searchTerm)->paginate($perPage);
+        }
+        return $results;
+
+        // return StaffResource::collection($results);
+
     }
 
     /**
@@ -40,7 +48,7 @@ class StaffController extends Controller
     public function store(Request $request)
     {
         //
-        $staff = Staff::updateOrCreate([ 'user_id'=> $request->userId],['user_id'=> $request->userId, 'staff_no'=> $request->staffNo, 'isActive' => $request->isActive ? $request->isActive : true]);
+        $staff = Staff::updateOrCreate(['id'=> $request->id],['user_id'=> $request->userId, 'staff_no'=> $request->staffNo, 'isActive' => $request->isActive ? $request->isActive : true, 'school_id' => $request->schoolId]);
         // return $Staff;
         // return 'works';
         return new StaffResource($staff);

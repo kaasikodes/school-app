@@ -101,8 +101,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 
     // staff
-    Route::post('/staff/saveprofile', [StaffController::class, 'store']);
-    Route::get('/staff', [StaffController::class, 'index']);
+    Route::post('/staff/save-profile', [StaffController::class, 'store']);
+    Route::get('/schools/{id}/staff', [StaffController::class, 'index']);
 
     // custodian
     Route::post('/custodian/saveprofile', [CustodianController::class, 'store']);
