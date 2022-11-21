@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\CourseParticipant;
 use App\Models\Custodian;
+use App\Models\StudentSessionPayment;
 
 
 
@@ -28,5 +29,9 @@ class Student extends Model
     public function custodians()
     {
         return $this->belongsToMany(Custodian::class)->withPivot('id');
+    }
+    public function sessionPayments()
+    {
+        return $this->hasMany(StudentSessionPayment::class);
     }
 }

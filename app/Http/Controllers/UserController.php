@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\School;
+use App\Models\Custodian;
+use App\Models\Staff;
+use App\Models\Student;
+use App\Models\Admin;
 
 
 class UserController extends Controller
@@ -24,8 +29,8 @@ class UserController extends Controller
                 'message' => 'The user is not a part of the selected school, hence the school cannot be the user\'s default school.',
                 'data' => $user,
                 'schools' => $user->schools,
-              
-    
+
+
             ], 405);
         }
         $user->choosen_school_id = $request->schoolId;
@@ -35,10 +40,44 @@ class UserController extends Controller
             'message' => 'The choosen school has been updated successfully',
             'data' => $user,
             'schools' => $user->schools,
-          
+
 
         ], 200);
- 
+
+    }
+    public function updateUserChoosenRoleInSchool(Request $request, $id)
+    {
+        //
+        $user = User::find($id);
+        $school= School::find($request->schoolId);
+
+        // update the role here
+        // $user->schools()->syncWithoutDetaching($request->schoolId, ['choosen_role' => $request->role]);
+
+
+        $userRolesInSchool = $school->users()->wherePivot('user_id', $user->id)->first()->pivot->school_user_roles;
+        $school->users()->detach($user->id);
+        $school->users()->attach($user->id, ['choosen_role' => $request->role, 'school_user_roles'=>$userRolesInSchool]);
+        // return concerned ids
+        $admin = Admin::where('school_id', $request->schoolId)->where('user_id',$user->id)->where('isActive', 1)->first();
+        $custodian = Custodian::where('school_id', $request->schoolId)->where('user_id',$user->id)->where('isActive', 1)->first();
+        $staff = Staff::where('school_id', $request->schoolId)->where('user_id',$user->id)->where('isActive', 1)->first();
+        $student = Student::where('school_id', $request->schoolId)->where('user_id',$user->id)->where('isActive', 1)->first();
+        // return $admin->id;
+        $adminId = $admin ? $admin->id : null;
+        $custodianId = $custodian  ? $custodian->id : null;
+        $staffId = $staff ? $staff->id : null;
+        $studentId = $student ? $student->id : null;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'The Role for choosen school has been updated successfully',
+            'data' => ['user'=>$user, 'adminId' => $adminId, 'custodianId'=>$custodianId, 'staffId'=> $staffId, 'studentId'=> $studentId],
+            'schools' => $user->schools,
+
+
+        ], 200);
+
     }
     public function index()
     {
@@ -82,7 +121,7 @@ class UserController extends Controller
             'message' => 'The user has been retrieved successfully!',
             'user' => $user,
             'schools' => $user->schools,
-          
+
 
         ], 200);
     }

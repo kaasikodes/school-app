@@ -18,7 +18,7 @@ class AuthController extends Controller
     {
         try {
             //Validated
-            $validateUser = Validator::make($request->all(), 
+            $validateUser = Validator::make($request->all(),
             [
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
@@ -44,7 +44,7 @@ class AuthController extends Controller
                 'user' => $user,
                 'schools' => $user->schools,
 
-                
+
                 'message' => 'User Created Successfully',
                 'token' => $user->createToken("API TOKEN")->plainTextToken,
             ], 200);
@@ -60,7 +60,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            $validateUser = Validator::make($request->all(), 
+            $validateUser = Validator::make($request->all(),
             [
                 'email' => 'required|email',
                 'password' => 'required'
@@ -88,9 +88,9 @@ class AuthController extends Controller
                 'message' => 'User Logged In Successfully',
                 'user' => $user,
                 'schools' => $user->schools,
-                
+
                 'token' => $user->createToken("API TOKEN")->plainTextToken,
-                'abilities' => $user->createToken("API TOKEN")->accessToken->abilities 
+                'abilities' => $user->createToken("API TOKEN")->accessToken->abilities
 
             ], 200);
 
@@ -101,6 +101,7 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
 
     public function logout($id)
     {

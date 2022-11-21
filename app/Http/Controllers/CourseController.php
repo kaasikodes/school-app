@@ -7,12 +7,14 @@ use App\Models\CourseParticipant;
 use App\Models\CourseTeacher;
 use App\Models\CourseLesson;
 use App\Models\CourseAssessment;
+use App\Models\CourseParticipantRecord;
 use App\Models\CourseAssessmentQuestion;
 use App\Models\CourseAssessmentSection;
 use App\Models\CourseAssessmentQuestionOption;
 use App\Models\CourseAssessmentQuestionAnswer;
 use App\Models\CourseAssessmentQuestionCorrectAnswer;
 use App\Http\Resources\CourseResource;
+use App\Http\Resources\SchoolSessionCourse;
 
 
 
@@ -25,10 +27,104 @@ class CourseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+     public function schoolSessionCourses(Request $request, $id)
+     {
+         //
+         $sessionId = $request->sessionId;
+
+         $perPage = $request->limit ? $request->limit : 4;
+
+
+         $results = SchoolSessionCourse::where('school_id',$id)->where('session_id',$sessionId)->paginate($perPage);
+
+         if($request->searchTerm){
+           // do it with relations
+             $results = SchoolSessionCourse::where('school_id',$id)->where('session_id',$sessionId)->whereLike(['name','ends','starts',], $request->searchTerm)->paginate($perPage);
+
+         }
+
+         return $results;
+         // return CourseResource::collection($results);
+     }
+     public function saveParticipantRecord(Request $request, $id)
+     {
+        // return 'works';
+         // calculate the total from the breakdown sent | since your comfortable with
+         //  js calc from front and send to back
+         $sessionId = $request->sessionId;
+         $levelId = $request->levelId;
+         $participantId = $request->participantId;
+         $courseId = $id;
+         $breakDown = json_encode($request->breakdown);
+         $result = CourseParticipantRecord::create([
+            'course_id'=>$courseId,
+            'level_id'=>$levelId,
+            'school_session_id'=>$sessionId,
+            'student_id'=>$participantId,
+            'total'=> $request->total,
+            'break_down'=> $breakDown,
+         ]);
+
+         return response()->json([
+            'status' => true,
+            'message' => 'Record stored succesfully!',
+            'data' => $result,
+           
+          
+
+        ], 200);
+
+        
+
+      
+         // return CourseResource::collection($results);
+     }
+    public function participantRecords(Request $request, $id)
     {
-        $results = Course::all();
-        return CourseResource::collection($results);
+        //
+        $sessionId = $request->sessionId;
+        $levelId = $request->levelId;
+        $participantId = $request->participantId;
+        // to filter result 
+        $perPage = $request->limit ? $request->limit : 4;
+
+
+        
+
+        $records = CourseParticipantRecord::where('course_id',$id)->where('student_id',$participantId)->where('school_session_id',$sessionId)->where('level_id',$levelId)->paginate($perPage);
+
+        // use a resource to return data in proper format
+        // name
+        // breakdown as json
+        // etc
+        // for now let only the primary teacher be able to mark
+
+        
+
+      
+    
+
+        return $records;
+        // return CourseResource::collection($results);
+    }
+    public function index(Request $request, $id)
+    {
+        //
+        $sessionId = $request->sessionId;
+
+        $perPage = $request->limit ? $request->limit : 4;
+
+        $results = Course::where('school_id',$id)->paginate($perPage);
+
+        if($request->searchTerm){
+            $results = Course::where('school_id',$id)->whereLike(['name','ends','starts',], $request->searchTerm)->paginate($perPage);
+
+        }
+    
+
+        return $results;
+        // return CourseResource::collection($results);
     }
 
     /**

@@ -5,26 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Course;
-use App\Models\Student;
+use App\Models\CourseParticipant;
 
 
-class CourseParticipant extends Model
+
+class CourseParticipantRecord extends Model
 {
     use HasFactory;
+    protected $table = 'course_participant_records';
     protected $guarded = [];
-
 
     public function course()
     {
         return $this->belongsTo(Course::class);
     }
-    public function student()
-    {
-        return $this->belongsTo(Student::class);
-    }
-    public function record()
-    {
-        return $this->hasOne(CourseParticipantRecord::class);
-    }
     
+    public function participant()
+    {
+        return $this->belongsTo(CourseParticipant::class);
+    }
+
+
 }

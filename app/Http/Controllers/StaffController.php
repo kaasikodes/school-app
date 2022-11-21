@@ -8,29 +8,14 @@ use App\Models\School;
 use App\Models\User;
 use App\Http\Resources\StaffResource;
 use Illuminate\Support\Facades\Hash;
+use App\Traits\BaseUserTrait;
+
 
 
 class StaffController extends Controller
 {
-    public function addUserToSchool($userId,$schoolId)
-    {
-        // return 'works';
-        $school = School::find($schoolId);
-        $school->users()->syncWithoutDetaching($userId);
-
-    }
-    public function createUser($name, $email, $password){
-        // return ['info' => $info, 'message' => 'works'];
-        $user = User::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => Hash::make($password)
-        ]);
-        return $user;
-
-    }
-
-    
+    use BaseUserTrait;
+  
     /**
      * Display a listing of the resource.
      *
@@ -40,11 +25,11 @@ class StaffController extends Controller
     {
         $perPage = $request->limit ? $request->limit : 15;
 
-        
+
         // return $results;
         $results = Staff::where('school_id',$id)->paginate($perPage);
         if($request->searchTerm){
-            $results = Staff::where('school_id',$id)->whereLike(['user.name'], $request->searchTerm)->paginate($perPage);
+            $results = Staff::where('school_id',$id)->whereLike(['user.name'], $request->searchTerm)->with(['user'])->paginate($perPage);
         }
         return $results;
 
@@ -79,21 +64,17 @@ class StaffController extends Controller
                 $request->email,
                 $request->password
             );
-            
+
 
         }
         // attach the user acc to a school
         $this->addUserToSchool($user->id, $request->schoolId);
-        // make school default school if user has no default
-        if(!$user->choosen_school_id){
-            $user->choosen_school_id = $request->schoolId;
-            $user->save();
-        }
+       
         // create a staff profile for user in the school
 
         // conditions
         // first check if the user with the account exists
-        // if the user exists create the user account but notify the user 
+        // if the user exists create the user account but notify the user
         // the user has the option to exit himself
         // if the user doesnt exist attach user to school set no priveledges
         // also create a staff profile for user

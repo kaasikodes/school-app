@@ -12,6 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Custodian;
 use App\Models\Staff;
 use App\Models\Student;
+use App\Models\Admin;
 use App\Models\School;
 
 
@@ -63,27 +64,31 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
-    // A user is part of many schools and can pay different roles in that school 
+    // A user is part of many schools and can pay different roles in that school
     // Likewise a school has many users
 
     public function schools()
     {
-        return $this->belongsToMany(School::class);
+        return $this->belongsToMany(School::class)->withPivot(['choosen_role','school_user_roles']);
     }
     // A user is part of many schools and can pay different roles in that school
+    public function admin()
+    {
+        return $this->hasMany(Admin::class);
+    }
 
     public function custodian()
     {
-        return $this->hasOne(Custodian::class);
+        return $this->hasMany(Custodian::class);
     }
 
     public function staff()
     {
-        return $this->hasOne(Staff::class);
+        return $this->hasMany(Staff::class);
     }
 
     public function student()
     {
-        return $this->hasOne(Student::class);
+        return $this->hasMany(Student::class);
     }
 }

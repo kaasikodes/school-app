@@ -10,6 +10,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CustodianController;
 use App\Http\Controllers\UserController;
 
@@ -39,6 +40,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // user
     Route::post('/users/{id}/update-choosenSchool', [UserController::class, 'updateChoosenSchoolId']);
+    Route::post('/users/{id}/update-user_rolein-school', [UserController::class, 'updateUserChoosenRoleInSchool']);
     Route::get('/users/{id}', [UserController::class, 'show']);
 
 
@@ -49,6 +51,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/schools/{id}', [SchoolController::class, 'show']);
     Route::delete('/schools/{id}', [SchoolController::class, 'destroy']);
     Route::post('/schools/{id}/add-user', [SchoolController::class, 'addUserToSchool']);
+    // school session templates & policies
+    Route::post('/schools/{id}/setup-session-course-record-template', [SchoolController::class, 'setupSchoolSessionCRTemplate']);
+    // course record template
+    Route::post('/schools/{id}/save-course-record-template', [SchoolController::class, 'saveCourseRecordTemplate']);
+    Route::get('/schools/{id}/course-record-templates', [SchoolController::class, 'getCourseRecordTemplates']);
+    Route::get('/course-record-templates/{id}', [SchoolController::class, 'getCourseRecordSingleTemplate']);
 
 
     // sessions
@@ -70,12 +78,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //levels
     Route::post('/levels/save', [LevelController::class, 'store']);
     Route::post('/levels/{id}/assign-session', [LevelController::class, 'assignToSession']);
-    Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
+    // Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
     Route::get('/levels/{id}', [LevelController::class, 'show']);
 
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
-    Route::get('/courses', [CourseController::class, 'index']);
+    Route::get('/schools/{id}/courses', [CourseController::class, 'index']);
     Route::post('/courses/{id}/assign-class', [CourseController::class, 'assignToLevel']);
     Route::post('/courses/{id}/add-participant', [CourseController::class, 'addParticipant']);
     Route::get('/courses/{id}/participants', [CourseController::class, 'courseParticipants']);
@@ -97,6 +105,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/question/{id}/save-participant-answer', [CourseController::class, 'savePartcipantAnswer']);
     Route::patch('/score-answer/{id}', [CourseController::class, 'scoreAnswer']);
     Route::post('/question/{id}/save-correct-answer', [CourseController::class, 'saveCorrectAnswer']);
+    // course records
+    Route::post('courses/{id}/save-participant-record', [CourseController::class, 'saveParticipantRecord']);
+    Route::get('courses/{id}/participant-records', [CourseController::class, 'participantRecords']);
+ 
+
 
 
 
@@ -109,9 +122,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/custodian', [CustodianController::class, 'index']);
 
     // student
-    Route::post('/student/saveprofile', [StudentController::class, 'store']);
-    Route::get('/student', [StudentController::class, 'index']);
+    Route::post('/student/save-profile', [StudentController::class, 'store']);
+    Route::get('/schools/{schoolId}/students', [StudentController::class, 'index']);
     Route::post('/student/{id}/assign-custodian', [StudentController::class, 'assignToCustodian']);
+
+    // payment
+    Route::post('/payment-categories/create', [PaymentController::class, 'createPaymentCategory']);
+    Route::put('/payment-categories/{id}/edit', [PaymentController::class, 'updatePaymentCategory']);
+    Route::get('/schools/{schoolId}/payment-categories', [PaymentController::class, 'paymentCategories']);
+    // level fees
+    Route::post('/level-fees/create', [PaymentController::class, 'createLevelFee']);
+    Route::put('/level-fees/{id}/edit', [PaymentController::class, 'updateLevelFee']);
+    Route::get('/schools/{schoolId}/level-fees', [PaymentController::class, 'levelFees']);
 
 
 
@@ -119,9 +141,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 });
 // Route::get('/levels', [LevelController::class, 'index']);
-
-
-
-
-
+Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
 
