@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     
     public function boot()
     {
-        //
+        // search
         
         Builder::macro('whereLike', function ($attributes, string $searchTerm) {
             $this->where(function (Builder $query) use ($attributes, $searchTerm) {
@@ -49,5 +49,9 @@ class AppServiceProvider extends ServiceProvider
         
             return $this;
         });
+
+
+        // api resource
+        // JsonResource::withoutWrapping();
     }
 }

@@ -122,8 +122,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/custodian', [CustodianController::class, 'index']);
 
     // student
-    Route::post('/student/save-profile', [StudentController::class, 'store']);
+    Route::post('/schools/{schoolId}/enroll-student-for-session', [StudentController::class, 'enrollStudentForSession']);
     Route::get('/schools/{schoolId}/students', [StudentController::class, 'index']);
+    Route::get('/schools/{schoolId}/students/{studentId}', [StudentController::class, 'singleStudent']);
     Route::post('/student/{id}/assign-custodian', [StudentController::class, 'assignToCustodian']);
 
     // payment
@@ -134,6 +135,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/level-fees/create', [PaymentController::class, 'createLevelFee']);
     Route::put('/level-fees/{id}/edit', [PaymentController::class, 'updateLevelFee']);
     Route::get('/schools/{schoolId}/level-fees', [PaymentController::class, 'levelFees']);
+    // currencies
+    Route::get('/schools/{schoolId}/currencies', [PaymentController::class, 'getCurrencies']);
+    // student session payment records
+    Route::get('/schools/{schoolId}/student-payment-records', [PaymentController::class, 'getStudentPaymentRecords']);
+
+
 
 
 

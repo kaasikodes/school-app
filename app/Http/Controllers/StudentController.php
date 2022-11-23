@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\StudentSessionPayment;
+use App\Models\LevelSchoolFee;
+use App\Models\EnrolledStudent;
+
 use App\Http\Resources\StudentResource;
 use App\Traits\BaseUserTrait;
 
@@ -18,6 +21,25 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function singleStudent(Request $request, $schoolId, $studentId)
+    {
+        //
+        // $results = Student::all();
+        // // return $results;
+        // return StudentResource::collection($results);
+
+         // PLease use resoURCES
+         $sessionId = $request->sessionId;
+
+         $result = Student::find($studentId);
+         if($sessionId){
+             $enrollmentStatus = EnrolledStudent::where('student_id',$studentId)->where('school_session_id', $sessionId)->first();
+             $result->enrollmentStatus = $enrollmentStatus ? true : false;
+            //  add enrollment status here => with
+         }
+ 
+         return new StudentResource($result);
+    }
     public function index(Request $request, $id)
     {
         //
@@ -27,13 +49,14 @@ class StudentController extends Controller
 
          // PLease use resoURCES
          $perPage = $request->limit ? $request->limit : 4;
-
          $results = Student::where('school_id',$id)->paginate($perPage);
+
+
          if($request->searchTerm){
              $results = Student::where('school_id',$id)->whereLike(['user.name'], $request->searchTerm)->paginate($perPage);
          }
  
-         return $results;
+         return StudentResource::collection($results);
     }
 
     /**
@@ -52,7 +75,7 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function enrollStudentForSession(Request $request, $schoolId)
     {
         // idNo: string;
         // name: string;
@@ -74,21 +97,37 @@ class StudentController extends Controller
                 $this->defaultPassword
             );
             // attach the user acc to a school
-            $this->addUserToSchool($user->id, $request->schoolId);
+            $this->addUserToSchool($user->id, $schoolId);
             // Also update the user role
-            $this->addRoleToUserInSchool($user->id, $request->schoolId, ['student']);
+            $this->addRoleToUserInSchool($user->id, $schoolId, ['student']);
         }
         
         
         
 
         // create student profile if doesnt exisst
-        $student = Student::updateOrCreate([ 'user_id'=> $user->id, 'school_id' => $request->schoolId], ['current_level_id'=> $request->currentClassId,  'id_number'=>$request->idNo, 'current_session_id' => $request->currentSessionId]);
+        $student = Student::updateOrCreate([ 'user_id'=> $user->id, 'school_id' => $schoolId], ['current_level_id'=> $request->currentClassId,  'id_number'=>$request->idNo, 'current_session_id' => $request->currentSessionId, 'alt_phone'=>$request->altPhone, 'alt_email'=>$request->altEmail]);
+
+
+        $levelFee = LevelSchoolFee::where('session_id', $request->currentSessionId)->where('fee_category_id', $request->paymentCategoryId)->where('level_id',$request->currentClassId)->first();
+        if(!$levelFee){
+            return response()->json([
+                'status' => false,
+                'message' => 'A fee has not created for selected class, contact your admin!',
+              
+    
+            ], 404);
+        }
         // student < - > school_sessions (many to many)
-        // create the students payments & indicate wether payment is complete based on policy
-        $isComplete = 0; //based of the school fee amount set for each class for that session //alloww for supporting doc breakdown upload for now
-        StudentSessionPayment::create(['student_id'=>$student->id,'pop_document_url'=> $request->popDocumentUrl, 'amount'=>$request->schoolFeeAmountPaid, 'is_complete'=>$isComplete])
+        // create the students payments & indicate wether payment is complete based on policy wether part payment is allowed
+        $isComplete = $request->schoolFeeAmountPaid < $levelFee->amount ? 0 : 1; 
+        $isBelow = $request->schoolFeeAmountPaid < $levelFee->amount ? 1 : 0; 
+        $isInExcess = $request->schoolFeeAmountPaid > $levelFee->amount ? 1 : 0; 
+        StudentSessionPayment::create(['student_id'=>$student->id,'pop_document_url'=> $request->popDocumentUrl, 'amount'=>$request->schoolFeeAmountPaid, 'is_complete'=>$isComplete, 'session_id'=>$request->currentSessionId, 'level_fee_id'=>$levelFee->id, 'recorder_id'=>auth()->user()->id]);
         // create the student session courses
+
+        // Enroll student
+        $enrolledStudent = EnrolledStudent::create(['student_id'=>$student->id,'school_session_id'=>$request->currentSessionId]);
        
         return new StudentResource($student);
     }

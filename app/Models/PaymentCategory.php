@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\School;
+use App\Models\LevelSchoolFee;
 
 
 class PaymentCategory extends Model
@@ -19,6 +20,10 @@ class PaymentCategory extends Model
     public function school()
     {
         return $this->belongsTo(School::class);
+    }
+    public function levelFees()
+    {
+        return $this->hasMany(LevelSchoolFee::class, 'fee_category_id');
     }
 
 }

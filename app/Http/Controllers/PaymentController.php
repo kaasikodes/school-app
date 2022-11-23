@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PaymentCategory;
-use App\Models\SchoolLevelFee;
+use App\Models\LevelSchoolFee;
+use App\Models\Currency;
+use App\Models\StudentSessionPayment;
+use App\Http\Resources\LevelSchoolFeeResource;
+use App\Http\Resources\StudentSessionPaymentResource;
 
 
 class PaymentController extends Controller
@@ -24,6 +28,33 @@ class PaymentController extends Controller
             'data' => $result,
 
         ], 200);
+    }
+    public function levelFees(Request $request, $schoolId)
+    {
+        $perPage = $request->limit ? $request->limit : 4;
+
+        $result = LevelSchoolFee::where('school_id', $schoolId)->where('session_id', $request->sessionId)->paginate($perPage);
+        return LevelSchoolFeeResource::collection($result)->additional(['status'=>true, 'message'=>'Class Fees retrieved']);
+    }
+    public function getCurrencies($schoolId)
+    {
+        //
+        $result = Currency::where('school_id', $schoolId)->get();
+        return response()->json([
+            'status' => true,
+            'message' => 'Currencies retrieved!',
+            'data' => $result,
+
+        ], 200);
+    }
+    public function getStudentPaymentRecords(Request $request,$schoolId)
+    {
+        $perPage = $request->limit ? $request->limit : 4;
+
+        //
+        $result = StudentSessionPayment::where('session_id', $request->sessionId)->paginate($perPage);
+        return StudentSessionPaymentResource::collection($result)->additional(['status'=>true, 'message'=>'Student Payment Records fetched!']);
+        
     }
 
     /**
@@ -56,7 +87,17 @@ class PaymentController extends Controller
     public function createLevelFee(Request $request)
     {
         // please validate request n throw appropriate errs
-        $result = SchoolLevelFee::create(['school_id'=>$request->schoolId,'level_id'=>$request->levelId, 'school_session_id'=>$request->sessionId,'fee_category_id'=>$request->categoryId, 'breakdown_document_url' => $request->docUrl, 'amount'=>$request->amount, 'can_be_installmental' => $request->inPart, 'currency_id' => $request->currencyId]);
+        $levelFeeExists = LevelSchoolFee::where('school_id',$request->schoolId)->where('level_id',$request->levelId)->where('fee_category_id',$request->categoryId)->where('session_id',$request->sessionId)->first();
+        if($levelFeeExists){
+            return response()->json([
+                'status' => false,
+                'message' => 'Class Fee already exists, edit it instead!',
+                'data' => $levelFeeExists,
+    
+            ], 208);
+
+        }
+        $result = LevelSchoolFee::create(['school_id'=>$request->schoolId,'level_id'=>$request->levelId,'fee_category_id'=>$request->categoryId, 'breakdown_document_url' => $request->docUrl ?? '', 'amount'=>$request->amount, 'can_be_installmental' => $request->inPart, 'currency_id' => $request->currencyId, 'session_id'=>$request->sessionId]);
         return response()->json([
             'status' => true,
             'message' => 'Class Fee saved succesfully!',
