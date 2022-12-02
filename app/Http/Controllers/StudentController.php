@@ -29,14 +29,15 @@ class StudentController extends Controller
         // return StudentResource::collection($results);
 
          // PLease use resoURCES
-         $sessionId = $request->sessionId;
+        //  $sessionId = $request->sessionId;
 
          $result = Student::find($studentId);
-         if($sessionId){
-             $enrollmentStatus = EnrolledStudent::where('student_id',$studentId)->where('school_session_id', $sessionId)->first();
-             $result->enrollmentStatus = $enrollmentStatus ? true : false;
-            //  add enrollment status here => with
-         }
+        //  if($sessionId){
+        //      $enrollmentStatus = EnrolledStudent::where('student_id',$studentId)->where('school_session_id', $sessionId)->first();
+        //      $result->enrollmentStatus = $enrollmentStatus ? true : false;
+        //     //  add enrollment status here => with
+        //  }
+        // sessionId is present here
  
          return new StudentResource($result);
     }

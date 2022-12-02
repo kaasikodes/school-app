@@ -84,6 +84,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
     Route::get('/schools/{id}/courses', [CourseController::class, 'index']);
+    Route::post('/courses/addSessionCourseParticipant', [CourseController::class, 'addSessionCourseParticipant']);
+    Route::get('/schools/{id}/coursesGroupedByLevel', [CourseController::class, 'coursesGroupedByLevel']);
+    
+    //HERE
     Route::post('/courses/{id}/assign-class', [CourseController::class, 'assignToLevel']);
     Route::post('/courses/{id}/add-participant', [CourseController::class, 'addParticipant']);
     Route::get('/courses/{id}/participants', [CourseController::class, 'courseParticipants']);
@@ -149,4 +153,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 });
 // Route::get('/levels', [LevelController::class, 'index']);
 Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
+
 

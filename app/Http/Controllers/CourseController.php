@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Level;
 use App\Models\CourseParticipant;
 use App\Models\CourseTeacher;
 use App\Models\CourseLesson;
@@ -14,6 +15,7 @@ use App\Models\CourseAssessmentQuestionOption;
 use App\Models\CourseAssessmentQuestionAnswer;
 use App\Models\CourseAssessmentQuestionCorrectAnswer;
 use App\Http\Resources\CourseResource;
+use App\Http\Resources\LevelResource;
 use App\Http\Resources\SchoolSessionCourse;
 
 
@@ -27,26 +29,17 @@ class CourseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
-     public function schoolSessionCourses(Request $request, $id)
+// from here
+     public function coursesGroupedByLevel(Request $request, $schoolId)
      {
          //
-         $sessionId = $request->sessionId;
+         
+         $levels = Level::where('school_id',$schoolId)->get();
 
-         $perPage = $request->limit ? $request->limit : 4;
-
-
-         $results = SchoolSessionCourse::where('school_id',$id)->where('session_id',$sessionId)->paginate($perPage);
-
-         if($request->searchTerm){
-           // do it with relations
-             $results = SchoolSessionCourse::where('school_id',$id)->where('session_id',$sessionId)->whereLike(['name','ends','starts',], $request->searchTerm)->paginate($perPage);
-
-         }
-
-         return $results;
+         return LevelResource::collection($levels);
          // return CourseResource::collection($results);
      }
+   
      public function saveParticipantRecord(Request $request, $id)
      {
         // return 'works';
@@ -79,6 +72,40 @@ class CourseController extends Controller
 
       
          // return CourseResource::collection($results);
+     }
+     public function addSessionCourseParticipant(Request $request)
+     {
+        
+         $sessionId = $request->sessionId;
+         $levelId = $request->levelId;
+         $studentId = $request->studentId;
+         $courses = $request->courses;
+         $records = [];
+         foreach ($courses as $course) {
+            # code...
+            array_push($records, [
+                'course_id'=>$course['courseId'],
+                'level_id'=>$course['levelId'],
+                'school_session_id'=>$sessionId,
+                'student_id'=>$studentId,
+
+            ]);
+         }
+        //  make sure that you record make sure that an exception is 
+        // thrown if a record has a session level n course as existing record
+        // see how you can make all multiple keys serve as a unique one
+         $result = CourseParticipantRecord::insert($records);
+
+         return response()->json([
+            'status' => true,
+            'message' => 'Student enrolled for courses successfully succesfully!',
+            'data' => $result,
+           
+          
+
+        ], 200);
+
+        
      }
     public function participantRecords(Request $request, $id)
     {
