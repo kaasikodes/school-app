@@ -21,6 +21,29 @@ class StaffController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function singleStaff(Request $request, $schoolId, $staffId)
+    {
+        //
+        // $results = Student::all();
+        // // return $results;
+        // return StudentResource::collection($results);
+
+         // PLease use resoURCES
+        //  $sessionId = $request->sessionId;
+
+         $result = Staff::where('id',$staffId)->where('school_id', $schoolId)->first();
+        //  if($sessionId){
+        //      $enrollmentStatus = EnrolledStudent::where('student_id',$studentId)->where('school_session_id', $sessionId)->first();
+        //      $result->enrollmentStatus = $enrollmentStatus ? true : false;
+        //     //  add enrollment status here => with
+        //  }
+        // sessionId is present here
+ 
+         return new StaffResource($result);
+    }
+
+
+
     public function index(Request $request, $id)
     {
         $perPage = $request->limit ? $request->limit : 15;

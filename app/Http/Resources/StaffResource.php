@@ -14,6 +14,10 @@ class StaffResource extends JsonResource
      */
     public function toArray($request)
     {
+        $sessionId = $request->sessionId;
+        if ($sessionId) {
+            // are you going to enroll staff
+        }
         return ['data' => parent::toArray($request), 'user'=> $this->user];
     }
 }

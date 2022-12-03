@@ -85,6 +85,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/courses/save', [CourseController::class, 'store']);
     Route::get('/schools/{id}/courses', [CourseController::class, 'index']);
     Route::post('/courses/addSessionCourseParticipant', [CourseController::class, 'addSessionCourseParticipant']);
+    Route::post('/courses/addSessionCourseTeacher', [CourseController::class, 'addSessionCourseTeacher']);
     Route::get('/schools/{id}/coursesGroupedByLevel', [CourseController::class, 'coursesGroupedByLevel']);
     
     //HERE
@@ -120,6 +121,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // staff
     Route::post('/staff/save-profile', [StaffController::class, 'store']);
     Route::get('/schools/{id}/staff', [StaffController::class, 'index']);
+    Route::get('/schools/{schoolId}/staff/{staffId}', [StaffController::class, 'singleStaff']);
+
 
     // custodian
     Route::post('/custodian/saveprofile', [CustodianController::class, 'store']);

@@ -9,6 +9,7 @@ use App\Models\CourseTeacher;
 use App\Models\CourseLesson;
 use App\Models\CourseAssessment;
 use App\Models\CourseParticipantRecord;
+use App\Models\CourseTeacherRecord;
 use App\Models\CourseAssessmentQuestion;
 use App\Models\CourseAssessmentSection;
 use App\Models\CourseAssessmentQuestionOption;
@@ -73,6 +74,40 @@ class CourseController extends Controller
       
          // return CourseResource::collection($results);
      }
+     public function addSessionCourseTeacher(Request $request)
+     {
+        
+         $sessionId = $request->sessionId;
+         $levelId = $request->levelId;
+         $staffId = $request->staffId;
+         $courses = $request->courses;
+         $records = [];
+         foreach ($courses as $course) {
+            # code...
+            array_push($records, [
+                'course_id'=>$course['courseId'],
+                'level_id'=>$course['levelId'],
+                'school_session_id'=>$sessionId,
+                'staff_id'=>$staffId,
+
+            ]);
+         }
+        //  make sure that you record make sure that an exception is 
+        // thrown if a record has a session level n course as existing record
+        // see how you can make all multiple keys serve as a unique one
+         $result = CourseTeacherRecord::insert($records);
+
+         return response()->json([
+            'status' => true,
+            'message' => 'Staff assigned session courses successfully!',
+            'data' => $result,
+           
+          
+
+        ], 200);
+
+        
+     }
      public function addSessionCourseParticipant(Request $request)
      {
         
@@ -98,7 +133,7 @@ class CourseController extends Controller
 
          return response()->json([
             'status' => true,
-            'message' => 'Student enrolled for courses successfully succesfully!',
+            'message' => 'Student enrolled for courses successfully!',
             'data' => $result,
            
           
