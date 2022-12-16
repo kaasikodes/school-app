@@ -8,6 +8,9 @@ use App\Models\User;
 use App\Models\StudentSessionPayment;
 use App\Models\LevelSchoolFee;
 use App\Models\EnrolledStudent;
+use App\Models\CourseParticipantRecord;
+use App\Http\Resources\StaffSessionCourseNLevelResource;
+
 
 use App\Http\Resources\StudentResource;
 use App\Traits\BaseUserTrait;
@@ -40,6 +43,31 @@ class StudentController extends Controller
         // sessionId is present here
  
          return new StudentResource($result);
+    }
+
+    public function studentSessionCoursesGroupedByLevel(Request $request, $studentId)
+    {
+
+
+        // return levels by course association
+        // and levels by level association
+        // or consider join
+        // or on frontend do the necessary -- bingo
+       
+        $courses = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$request->sessionId)->where('student_id',$studentId)->get();
+        
+        $coursesGroupedByLevel = $courses->groupBy('level_id')->all();
+
+       
+        
+        // also return the level details, so you can group it properly
+        // return both and seperate in frontend
+        // START FROM HERE -> api.php -> postman  -> frontend
+
+        $data =  [ 'courses'=> $courses , 'coursesGroupedByLevel' => $coursesGroupedByLevel, ];
+
+        return new StaffSessionCourseNLevelResource($data);
+
     }
     public function index(Request $request, $id)
     {

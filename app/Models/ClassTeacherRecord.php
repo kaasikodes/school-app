@@ -10,25 +10,22 @@ use App\Models\CourseTeacher;
 
 
 
-class CourseTeacherRecord extends Model
+class ClassTeacherRecord extends Model
 {
     use HasFactory;
-    protected $table = 'course_teacher_records';
+    protected $table = 'class_teacher_records';
     protected $guarded = [];
 
-    public function course()
-    {
-        return $this->belongsTo(Course::class, 'course_id');
-    }
     public function level()
     {
         return $this->belongsTo(Level::class, 'level_id');
     }
-    
-    public function teacher()
+    public function course()
     {
-        return $this->belongsTo(CourseTeacher::class);
+        return $this->belongsTo(Course::class, 'course_id');
     }
+    
+
 
 
 }

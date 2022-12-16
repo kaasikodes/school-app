@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Staff;
 use App\Models\School;
 use App\Models\User;
+use App\Models\ClassTeacherRecord;
+use App\Models\CourseTeacherRecord;
 use App\Http\Resources\StaffResource;
+use App\Http\Resources\StaffSessionCourseNLevelResource;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\BaseUserTrait;
 
@@ -44,6 +47,32 @@ class StaffController extends Controller
 
 
 
+    // this function returns the levels associated with a staff for a particular session
+    // association can be by teaching courses in that class or by being a class teacher
+    public function staffSessionLevelsAndCourses(Request $request, $staffId)
+    {
+
+
+        // return levels by course association
+        // and levels by level association
+        // or consider join
+        // or on frontend do the necessary -- bingo
+       
+        $courses = CourseTeacherRecord::with(['course', 'level'])->where('school_session_id',$request->sessionId)->where('staff_id',$staffId)->get();
+        
+        $coursesGroupedByLevel = $courses->groupBy('level_id')->all();
+
+        $classesGroupedBySession = ClassTeacherRecord::with('level')->where('school_session_id',$request->sessionId)->where('staff_id',$staffId)->get();
+        
+        // also return the level details, so you can group it properly
+        // return both and seperate in frontend
+        // START FROM HERE -> api.php -> postman  -> frontend
+
+        $data =  ['classesGroupedBySession' => $classesGroupedBySession, 'coursesGroupedByLevel' => $coursesGroupedByLevel, ];
+
+        return new StaffSessionCourseNLevelResource($data);
+
+    }
     public function index(Request $request, $id)
     {
         $perPage = $request->limit ? $request->limit : 15;

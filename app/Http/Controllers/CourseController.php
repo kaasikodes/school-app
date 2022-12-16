@@ -18,6 +18,7 @@ use App\Models\CourseAssessmentQuestionCorrectAnswer;
 use App\Http\Resources\CourseResource;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\SchoolSessionCourse;
+use App\Http\Resources\CourseParticipantResource;
 
 
 
@@ -41,22 +42,65 @@ class CourseController extends Controller
          // return CourseResource::collection($results);
      }
    
-     public function saveParticipantRecord(Request $request, $id)
+     public function sessionCourseParticipants(Request $request)
      {
         // return 'works';
          // calculate the total from the breakdown sent | since your comfortable with
          //  js calc from front and send to back
          $sessionId = $request->sessionId;
          $levelId = $request->levelId;
+         $courseId = $request->courseId;
+       
+         $result = CourseParticipantRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->paginate();
+
+      
+
+        
+
+      
+         return CourseParticipantResource::collection($result);
+     }
+
+
+    //  student enrolling for one course
+     public function saveParticipantRecord(Request $request)
+     {
+        // return 'works';
+         // calculate the total from the breakdown sent | since your comfortable with
+         //  js calc from front and send to back
+ 
          $participantId = $request->participantId;
-         $courseId = $id;
-         $breakDown = json_encode($request->breakdown);
-         $result = CourseParticipantRecord::create([
-            'course_id'=>$courseId,
-            'level_id'=>$levelId,
-            'school_session_id'=>$sessionId,
-            'student_id'=>$participantId,
-            'total'=> $request->total,
+        
+         $breakDown = json_encode($request->breakDown);
+         $participant = CourseParticipantRecord::find($participantId);
+
+        //  grade policy as per diagram for users
+        $total = $request->total;
+        $grade = '';
+        if($total >= 70 && $total <= 100) {
+            $grade = 'A';
+        }
+        if($total >= 55 && $total < 70) {
+            $grade = 'B';
+        }
+        if($total >= 45 && $total < 55) {
+            $grade = 'C';
+        }
+        if($total >= 40 && $total < 45) {
+            $grade = 'D';
+        }
+        if($total >= 20 && $total < 40) {
+            $grade = 'P';
+        }
+        if($total >= 0 && $total < 20) {
+            $grade = 'F';
+        }
+       
+
+         $result = $participant->update([
+          
+            'grade'=>$grade,
+            'total'=> $total,
             'break_down'=> $breakDown,
          ]);
 

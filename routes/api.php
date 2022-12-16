@@ -84,9 +84,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
     Route::get('/schools/{id}/courses', [CourseController::class, 'index']);
+    Route::get('/courses/sessionCourseParticipants', [CourseController::class, 'sessionCourseParticipants']);
     Route::post('/courses/addSessionCourseParticipant', [CourseController::class, 'addSessionCourseParticipant']);
     Route::post('/courses/addSessionCourseTeacher', [CourseController::class, 'addSessionCourseTeacher']);
     Route::get('/schools/{id}/coursesGroupedByLevel', [CourseController::class, 'coursesGroupedByLevel']);
+    Route::post('/save-participant-record', [CourseController::class, 'saveParticipantRecord']);
     
     //HERE
     Route::post('/courses/{id}/assign-class', [CourseController::class, 'assignToLevel']);
@@ -111,7 +113,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::patch('/score-answer/{id}', [CourseController::class, 'scoreAnswer']);
     Route::post('/question/{id}/save-correct-answer', [CourseController::class, 'saveCorrectAnswer']);
     // course records
-    Route::post('courses/{id}/save-participant-record', [CourseController::class, 'saveParticipantRecord']);
     Route::get('courses/{id}/participant-records', [CourseController::class, 'participantRecords']);
  
 
@@ -122,6 +123,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/staff/save-profile', [StaffController::class, 'store']);
     Route::get('/schools/{id}/staff', [StaffController::class, 'index']);
     Route::get('/schools/{schoolId}/staff/{staffId}', [StaffController::class, 'singleStaff']);
+    Route::get('/staff/{staffId}/staffSessionLevelsAndCourses', [StaffController::class, 'staffSessionLevelsAndCourses']);
+
 
 
     // custodian
@@ -133,6 +136,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/schools/{schoolId}/students', [StudentController::class, 'index']);
     Route::get('/schools/{schoolId}/students/{studentId}', [StudentController::class, 'singleStudent']);
     Route::post('/student/{id}/assign-custodian', [StudentController::class, 'assignToCustodian']);
+    // /api/student/${studentId}/studentSessionCoursesGroupedByLevel?sessionId=${sessionId}&levelId=${levelId}
+    Route::get('/student/{staffId}/studentSessionCoursesGroupedByLevel', [StudentController::class, 'studentSessionCoursesGroupedByLevel']);
+
 
     // payment
     Route::post('/payment-categories/create', [PaymentController::class, 'createPaymentCategory']);
