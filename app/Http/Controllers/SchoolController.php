@@ -4,9 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\School;
+use App\Models\User;
+use App\Models\Admin;
+use App\Models\Staff;
+use App\Models\SchoolSession;
 use App\Models\SchoolCourseRecordTemplate;
 use App\Models\SchoolSessionSetting;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Hash;
+
 
 
 
@@ -17,6 +23,63 @@ class SchoolController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function registerSchool(Request $request)
+     {
+         try{
+           //create user or get user if users exists already
+           $user = User::where('email', $request->userEmail)->first();
+
+           if(!$user){
+             // consider verifying by email & the forgot password
+             $user = User::create([
+                 'name' => $request->userFullName,
+                 'email' => $request->userEmail,
+                 'password' => Hash::make($request->userPassword)
+             ]);
+           }
+           // create schools
+           // assign the user an admin and a staff role
+           //validate the request
+           // create the school
+           $school = School::create(['name' => $request->schoolName, 'email' =>$request->userEmail, 'phone'=> $request->userPhone ]);
+
+           // create first school session
+           $session = SchoolSession::create(['name'=>'First Session', 'school_id' => $school->id, 'description'=>'This is the first academic session in your school', 'starts'=>date("Y-m-d", time())]);
+           $school->current_session_id = $session->id;
+           $school->save();
+
+
+
+           // add the user who created the school to :the school as admin
+           $school->users()->syncWithoutDetaching($user->id);
+           $admin = Admin::create(['user_id'=>$user->id, 'school_id'=>$school->id]);
+           $staff = Staff::create(['user_id'=>$user->id, 'school_id'=>$school->id]);
+           // make user admin in school created
+           $user->schools()->updateExistingPivot($school->id, ['staff_id'=>$staff->id, 'admin_id'=>$admin->id,'choosen_role'=> 'admin','school_user_roles'=> json_encode(['admin','staff'])]);
+
+           // update the choosen_school_id
+           $user->choosen_school_id = $school->id;
+           $user->save();
+
+           return response()->json([
+               'status' => true,
+               'user' => $user,
+               'schools' => $user->schools,
+
+
+               'message' => 'School registered successfully',
+               'token' => $user->createToken("API TOKEN")->plainTextToken,
+           ], 200);
+         }catch (\Throwable $th) {
+             return response()->json([
+                 'status' => false,
+                 'message' => $th->getMessage()
+             ], 500);
+         }
+
+
+     }
     public function index(Request $request)
     {
         //
@@ -30,6 +93,8 @@ class SchoolController extends Controller
 
         ], 200);
     }
+
+
     public function addUserToSchool(Request $request, $id)
     {
         // return 'works';
@@ -84,11 +149,11 @@ class SchoolController extends Controller
     }
     public function getCourseRecordTemplates( $schoolId)
     {
-        $result = SchoolCourseRecordTemplate::where('school_id',$schoolId)->get();
+        $result = SchoolCourseRecordTemplate::with(['sessionsUsedIn'])->where('school_id',$schoolId)->get();
 
         return response()->json([
             'status' => true,
-            'message' => 'Template retrieved succesfully!',
+            'message' => 'Templates retrieved succesfully!',
             'data' => $result,
 
         ], 200);
@@ -108,11 +173,22 @@ class SchoolController extends Controller
     // school session templates & policies
     public function setupSchoolSessionCRTemplate(Request $request , $schoolId)
     {
-        $result = SchoolSessionSetting::updateOrCreate(['id'=> $request->ssId],[ 'session_id' => $request->session_id, 'school_id'=> $schoolId, 'course_record_template_id'=> $request->course_record_template_id]);
+        $result = SchoolSessionSetting::updateOrCreate(['school_id'=> $schoolId, 'session_id' => $request->sessionId],['course_record_template_id'=> $request->templateId]);
 
         return response()->json([
             'status' => true,
-            'message' => 'Template saved succesfully!',
+            'message' => 'Course Recording Template assigned to current school session succesfully!',
+            'data' => $result,
+
+        ], 200);
+    }
+    public function getSchoolSessionSetting(Request $request , $schoolId, $sessionId)
+    {
+        $result = SchoolSessionSetting::where(['school_id'=> $schoolId, 'session_id' => $sessionId])->first();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'School session setting retrieved succesfully!',
             'data' => $result,
 
         ], 200);

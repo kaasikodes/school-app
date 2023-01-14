@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class StaffResource extends JsonResource
+class AdminResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,6 +18,6 @@ class StaffResource extends JsonResource
         if ($sessionId) {
             // are you going to enroll staff
         }
-        return ['data' => parent::toArray($request)];
+        return ['data' => parent::toArray($request), 'user'=> $this->user];
     }
 }

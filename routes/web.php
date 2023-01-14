@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LevelsController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,10 +16,12 @@ use App\Http\Controllers\LevelsController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::get('users/export/', [UserController::class, 'export']);
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/departments/bulk-template', [DepartmentController::class, 'exportBulkUpload']);
+
 
 Route::middleware([
     'auth:sanctum',
@@ -30,4 +34,3 @@ Route::middleware([
 });
 
 Route::get('/classes', [LevelsController::class, 'index'])->name('levels.index');
-

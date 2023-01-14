@@ -13,6 +13,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CustodianController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 
 
 /*
@@ -27,10 +28,21 @@ use App\Http\Controllers\UserController;
 */
 Route::post('/register', [AuthController::class, 'createAccount'])->name('createAccount');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/schools/register-school', [SchoolController::class, 'registerSchool']);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('users/export/', [UserController::class, 'export']);
+Route::get('/departments/export/bulk-template', [DepartmentController::class, 'exportBulkUpload']);
+Route::get('/levels/export/bulk-template', [LevelController::class, 'exportBulkUpload']);
+Route::get('/courses/export/bulk-template', [CourseController::class, 'exportBulkUpload']);
+Route::get('/staff/export/bulk-template', [StaffController::class, 'exportBulkUpload']);
+// Route::get('/students/export/bulk-template', [StudentController::class, 'exportBulkUpload']);
+Route::get('schools/{schoolId}/students/export/bulk-template', [StudentController::class, 'exportBulkUpload']);
+
+
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/profile', function(Request $request) {
@@ -57,6 +69,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/schools/{id}/save-course-record-template', [SchoolController::class, 'saveCourseRecordTemplate']);
     Route::get('/schools/{id}/course-record-templates', [SchoolController::class, 'getCourseRecordTemplates']);
     Route::get('/course-record-templates/{id}', [SchoolController::class, 'getCourseRecordSingleTemplate']);
+    Route::get('/school-session-setting/{schoolId}/{sessionId}', [SchoolController::class, 'getSchoolSessionSetting']);
+
+
 
 
     // sessions
@@ -71,25 +86,36 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // departments
     // create or update
     Route::post('/departments/save', [DepartmentController::class, 'store']);
+    Route::patch('/departments/{departmentId}/update', [DepartmentController::class, 'update']);
+    Route::post('/departments/add-bulk', [DepartmentController::class, 'addDepartmentsInBulk']);
     Route::get('/schools/{id}/departments', [DepartmentController::class, 'index']);
     Route::get('/departments/{id}', [DepartmentController::class, 'show']);
 
 
+
     //levels
     Route::post('/levels/save', [LevelController::class, 'store']);
+    Route::patch('/levels/{levelId}/update', [LevelController::class, 'update']);
+    Route::post('/levels/add-bulk', [LevelController::class, 'addLevelsInBulk']);
     Route::post('/levels/{id}/assign-session', [LevelController::class, 'assignToSession']);
-    // Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
+    Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
     Route::get('/levels/{id}', [LevelController::class, 'show']);
 
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
+    Route::patch('/courses/{courseId}/update', [CourseController::class, 'update']);
+    Route::post('/courses/add-bulk', [CourseController::class, 'addCoursesInBulk']);
     Route::get('/schools/{id}/courses', [CourseController::class, 'index']);
-    Route::get('/courses/sessionCourseParticipants', [CourseController::class, 'sessionCourseParticipants']);
+    Route::get('/courses/{id}', [CourseController::class, 'show']);
+    Route::get('/courses/{id}/sessionCourseParticipants', [CourseController::class, 'sessionCourseParticipants']);
     Route::post('/courses/addSessionCourseParticipant', [CourseController::class, 'addSessionCourseParticipant']);
     Route::post('/courses/addSessionCourseTeacher', [CourseController::class, 'addSessionCourseTeacher']);
     Route::get('/schools/{id}/coursesGroupedByLevel', [CourseController::class, 'coursesGroupedByLevel']);
     Route::post('/save-participant-record', [CourseController::class, 'saveParticipantRecord']);
-    
+    Route::post('courses/assign-staff-to-handle-course-in-classes', [CourseController::class, 'assignStaffToHandleCourseInClassesForASession']);
+
+
+
     //HERE
     Route::post('/courses/{id}/assign-class', [CourseController::class, 'assignToLevel']);
     Route::post('/courses/{id}/add-participant', [CourseController::class, 'addParticipant']);
@@ -114,16 +140,25 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/question/{id}/save-correct-answer', [CourseController::class, 'saveCorrectAnswer']);
     // course records
     Route::get('courses/{id}/participant-records', [CourseController::class, 'participantRecords']);
- 
+
 
 
 
 
     // staff
-    Route::post('/staff/save-profile', [StaffController::class, 'store']);
+    Route::post('/staff/save', [StaffController::class, 'store']);
+    Route::patch('/staff/{staffId}/update', [StaffController::class, 'update']);
+    Route::post('/staff/add-bulk', [StaffController::class, 'addStaffInBulk']);
     Route::get('/schools/{id}/staff', [StaffController::class, 'index']);
-    Route::get('/schools/{schoolId}/staff/{staffId}', [StaffController::class, 'singleStaff']);
-    Route::get('/staff/{staffId}/staffSessionLevelsAndCourses', [StaffController::class, 'staffSessionLevelsAndCourses']);
+    Route::get('/schools/{schoolId}/staff/{staffId}/course-teacher-records', [StaffController::class, 'singleStaffCourseTeacherRecords']);
+
+    // Route::get('/schools/staff/{staffId}', [StaffController::class, 'singleStaff']);
+    Route::get('/staff/{staffId}', [StaffController::class, 'show']);
+        Route::get('/staff/{staffId}/staffSessionLevelsAndCourses', [StaffController::class, 'staffSessionLevelsAndCourses']);
+
+    // admin
+    Route::get('/schools/{schoolId}/admin/{adminId}', [AdminController::class, 'singleAdmin']);
+
 
 
 
@@ -132,7 +167,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/custodian', [CustodianController::class, 'index']);
 
     // student
-    Route::post('/schools/{schoolId}/enroll-student-for-session', [StudentController::class, 'enrollStudentForSession']);
+    Route::post('/schools/{schoolId}/enroll-new-student-for-session', [StudentController::class, 'enrollNewStudentForSession']);
     Route::get('/schools/{schoolId}/students', [StudentController::class, 'index']);
     Route::get('/schools/{schoolId}/students/{studentId}', [StudentController::class, 'singleStudent']);
     Route::post('/student/{id}/assign-custodian', [StudentController::class, 'assignToCustodian']);
@@ -161,6 +196,4 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 });
 // Route::get('/levels', [LevelController::class, 'index']);
-Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
-
-
+// Route::get('/schools/{id}/levels', [LevelController::class, 'index']);

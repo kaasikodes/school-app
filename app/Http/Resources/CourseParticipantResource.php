@@ -17,9 +17,9 @@ class CourseParticipantResource extends JsonResource
      */
     public function toArray($request)
     {
-        
+        $student = Student::find($this->student_id);
 
-        return ['data' => parent::toArray($request), 'user'=> Student::find($this->student_id)->user, ];
+        return ['data' => parent::toArray($request), 'user'=>$student ? $student->user : null, ];
 
     }
 }

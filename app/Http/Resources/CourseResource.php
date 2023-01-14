@@ -14,6 +14,6 @@ class CourseResource extends JsonResource
      */
     public function toArray($request)
     {
-        return ['data' => parent::toArray($request), 'department' => $this->department];
+        return ['data' => parent::toArray($request), 'department' => $this->department, 'levelCount'=>count($this->levels)];
     }
 }

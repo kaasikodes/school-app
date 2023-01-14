@@ -9,6 +9,8 @@ use App\Models\Custodian;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Models\Admin;
+use App\Exports\UsersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class UserController extends Controller
@@ -18,6 +20,10 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+     public function export()
+     {
+         return Excel::download(new UsersExport, 'users.xlsx');
+     }
     public function updateChoosenSchoolId(Request $request, $id)
     {
         //

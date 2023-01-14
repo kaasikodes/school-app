@@ -69,7 +69,7 @@ class User extends Authenticatable
 
     public function schools()
     {
-        return $this->belongsToMany(School::class)->withPivot(['choosen_role','school_user_roles']);
+        return $this->belongsToMany(School::class)->withPivot(['choosen_role','school_user_roles', 'staff_id', 'custodian_id', 'admin_id','student_id']);
     }
     // A user is part of many schools and can pay different roles in that school
     public function admin()

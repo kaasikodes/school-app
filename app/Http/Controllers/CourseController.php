@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Level;
+use App\Models\School;
+use App\Models\Staff;
 use App\Models\CourseParticipant;
 use App\Models\CourseTeacher;
 use App\Models\CourseLesson;
@@ -14,11 +16,17 @@ use App\Models\CourseAssessmentQuestion;
 use App\Models\CourseAssessmentSection;
 use App\Models\CourseAssessmentQuestionOption;
 use App\Models\CourseAssessmentQuestionAnswer;
+use App\Models\CourseLevel;
 use App\Models\CourseAssessmentQuestionCorrectAnswer;
 use App\Http\Resources\CourseResource;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\SchoolSessionCourse;
 use App\Http\Resources\CourseParticipantResource;
+use App\Exports\CoursesExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Notifications\NotifyUser;
+
+
 
 
 
@@ -31,33 +39,96 @@ class CourseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-// from here
+     public function assignStaffToHandleCourseInClassesForASession(Request $request)
+     {
+         $school = School::find($request->schoolId);
+         $course = Course::find($request->courseId);
+         if(!$course){
+           return response()->json([
+               'status' => false,
+               'message' => "Course doesn't exist",
+               'data' => null,
+
+
+
+           ], 404);
+         }
+         $courseId = $course->id;
+         // $currentSessionId = $school->current_session_id;
+         $currentSessionId = $request->sessionId;
+
+         $staffIds = $request->staffIds;
+         $levelIds = $request->levelIds;
+
+         $records = [];
+         foreach ($staffIds as $staffId) {
+           foreach ($levelIds as $levelId) {
+             array_push($records, [
+                 'school_session_id' => $currentSessionId,
+                 'course_id'=>$courseId,
+                 'level_id'=>$levelId,
+                 'staff_id'=>$staffId,
+                 'created_at'=>date('Y-m-d H:i:s'),
+                 'updated_at'=>date('Y-m-d H:i:s'),
+
+
+             ]);
+             // code...
+           }
+        }
+        CourseTeacherRecord::insert($records);
+
+        // TO do
+        // Need to refactor to avoid the loop and also to queue the notification
+
+         $staff = Staff::whereIn('id',$staffIds)->get();
+         $levels = Level::whereIn('id',$levelIds)->get();
+
+         $classCount = count($levelIds);
+         $levelsAsStr = implode(', ', $levels->pluck('name')->toArray());
+
+         // foreach ($staff as $staff) {
+         //   $staff->user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/", "You have been assigned to teach $course->name in  $classCount classes.", "You have been assigned $course->name to manage", "Classes: $levelsAsStr")));
+         // }
+
+
+         return response()->json([
+             'status' => true,
+             'message' => "Staff have been succesfully assigned to teach $course->name, in $classCount classes!",
+             'data' => $staff,
+
+
+
+         ], 200);
+         // return new StaffResource($staff);
+     }
+
      public function coursesGroupedByLevel(Request $request, $schoolId)
      {
          //
-         
+
          $levels = Level::where('school_id',$schoolId)->get();
 
          return LevelResource::collection($levels);
          // return CourseResource::collection($results);
      }
-   
-     public function sessionCourseParticipants(Request $request)
+
+     public function sessionCourseParticipants(Request $request,$courseId)
      {
         // return 'works';
          // calculate the total from the breakdown sent | since your comfortable with
          //  js calc from front and send to back
+
          $sessionId = $request->sessionId;
          $levelId = $request->levelId;
-         $courseId = $request->courseId;
-       
+
          $result = CourseParticipantRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->paginate();
 
-      
 
-        
 
-      
+
+
+
          return CourseParticipantResource::collection($result);
      }
 
@@ -68,9 +139,9 @@ class CourseController extends Controller
         // return 'works';
          // calculate the total from the breakdown sent | since your comfortable with
          //  js calc from front and send to back
- 
+
          $participantId = $request->participantId;
-        
+
          $breakDown = json_encode($request->breakDown);
          $participant = CourseParticipantRecord::find($participantId);
 
@@ -95,10 +166,10 @@ class CourseController extends Controller
         if($total >= 0 && $total < 20) {
             $grade = 'F';
         }
-       
+
 
          $result = $participant->update([
-          
+
             'grade'=>$grade,
             'total'=> $total,
             'break_down'=> $breakDown,
@@ -108,19 +179,19 @@ class CourseController extends Controller
             'status' => true,
             'message' => 'Record stored succesfully!',
             'data' => $result,
-           
-          
+
+
 
         ], 200);
 
-        
 
-      
+
+
          // return CourseResource::collection($results);
      }
      public function addSessionCourseTeacher(Request $request)
      {
-        
+
          $sessionId = $request->sessionId;
          $levelId = $request->levelId;
          $staffId = $request->staffId;
@@ -136,7 +207,7 @@ class CourseController extends Controller
 
             ]);
          }
-        //  make sure that you record make sure that an exception is 
+        //  make sure that you record make sure that an exception is
         // thrown if a record has a session level n course as existing record
         // see how you can make all multiple keys serve as a unique one
          $result = CourseTeacherRecord::insert($records);
@@ -145,16 +216,16 @@ class CourseController extends Controller
             'status' => true,
             'message' => 'Staff assigned session courses successfully!',
             'data' => $result,
-           
-          
+
+
 
         ], 200);
 
-        
+
      }
      public function addSessionCourseParticipant(Request $request)
      {
-        
+
          $sessionId = $request->sessionId;
          $levelId = $request->levelId;
          $studentId = $request->studentId;
@@ -170,7 +241,7 @@ class CourseController extends Controller
 
             ]);
          }
-        //  make sure that you record make sure that an exception is 
+        //  make sure that you record make sure that an exception is
         // thrown if a record has a session level n course as existing record
         // see how you can make all multiple keys serve as a unique one
          $result = CourseParticipantRecord::insert($records);
@@ -179,12 +250,12 @@ class CourseController extends Controller
             'status' => true,
             'message' => 'Student enrolled for courses successfully!',
             'data' => $result,
-           
-          
+
+
 
         ], 200);
 
-        
+
      }
     public function participantRecords(Request $request, $id)
     {
@@ -192,11 +263,11 @@ class CourseController extends Controller
         $sessionId = $request->sessionId;
         $levelId = $request->levelId;
         $participantId = $request->participantId;
-        // to filter result 
+        // to filter result
         $perPage = $request->limit ? $request->limit : 4;
 
 
-        
+
 
         $records = CourseParticipantRecord::where('course_id',$id)->where('student_id',$participantId)->where('school_session_id',$sessionId)->where('level_id',$levelId)->paginate($perPage);
 
@@ -206,10 +277,10 @@ class CourseController extends Controller
         // etc
         // for now let only the primary teacher be able to mark
 
-        
 
-      
-    
+
+
+
 
         return $records;
         // return CourseResource::collection($results);
@@ -224,13 +295,28 @@ class CourseController extends Controller
         $results = Course::where('school_id',$id)->paginate($perPage);
 
         if($request->searchTerm){
-            $results = Course::where('school_id',$id)->whereLike(['name','ends','starts',], $request->searchTerm)->paginate($perPage);
+            $results = Course::where('school_id',$id)->whereLike(['name'], $request->searchTerm)->paginate($perPage);
 
         }
-    
+        if($request->levelId){
+            $level = Level::find($request->levelId);
+            if(!$level){
+              return response()->json([
+                 'status' => false,
+                 'message' => 'This class does not exist',
+                 'data' => null,
 
-        return $results;
-        // return CourseResource::collection($results);
+
+
+             ], 404);
+            }
+            $results = $level->courses;
+
+        }
+
+
+        // return $results;
+        return CourseResource::collection($results);
     }
 
     /**
@@ -243,6 +329,46 @@ class CourseController extends Controller
         //
     }
 
+    public function exportBulkUpload()
+    {
+        //
+        return Excel::download(new CoursesExport, 'courses.xlsx');
+    }
+
+    public function addCoursesInBulk(Request $request)
+    {
+         //validate the request
+         if($request->id && $request->schoolId !==  Course::find($request->id)->school_id  ){
+            return 'Not allowed';
+        }
+        // create the departments
+        $entries = $request->jsonData;
+        $records = [];
+        foreach ($entries as $entry) {
+           # code...
+           array_push($records, [
+               'name'=>$entry['name'],
+               'description'=>$entry['description'],
+               'school_id'=>$request->schoolId,
+               'department_id'=>$entry['department'] ?? 0,
+               'created_at'=>date('Y-m-d H-i-s'),
+               'updated_at'=>date('Y-m-d H-i-s'),
+               // 'admin_id'=>$request->adminId
+
+           ]);
+        }
+        // return $records;
+        $result = Course::insert($records);
+        return response()->json([
+           'status' => true,
+           'message' => count($records)  .' courses were added successfully!',
+           'data' => $result,
+
+
+
+       ], 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -252,8 +378,33 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         //
-        $level = Course::updateOrCreate(['id' => $request->id], ['name' => $request->name, 'description' => $request->description, 'department_id' => $request->departmentId, 'school_id' =>$request->schoolId]);
-        return $level;
+        $course = Course::create( ['name' => $request->name, 'description' => $request->description, 'department_id' => $request->departmentId, 'school_id' =>$request->schoolId]);
+        $levels = $request->levels;
+        $records = [];
+        if($levels && count($levels) > 0){
+
+          foreach ($levels as $level) {
+             # code...
+             array_push($records,[
+               'level_id'=>$level,
+               'course_id' => $course->id,
+               'created_at'=>date('Y-m-d H:i:s'),
+               'updated_at'=>date('Y-m-d H:i:s'),
+             ]);
+          }
+          CourseLevel::insert($records);
+
+        }
+
+
+        return response()->json([
+            'status' => true,
+            'message' => "$course->name course created successfully",
+            'data' => $course,
+
+
+
+        ], 200);
     }
     public function assignToLevel(Request $request, $id)
     {
@@ -429,6 +580,27 @@ class CourseController extends Controller
     public function show($id)
     {
         //
+
+        $course = Course::with('levels')->find($id);
+        if($course ===  null){
+            return response()->json([
+                'status' => false,
+                'message' => 'This course doesn\'t exist.',
+                'data' => null,
+
+
+
+            ], 400);
+
+        }
+        return response()->json([
+            'status' => true,
+            'message' => "Course retrieved successfully",
+            'data' => $course,
+
+
+
+        ], 200);
     }
 
     /**
@@ -451,7 +623,19 @@ class CourseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //TO do
+        // Check when updating department so warning is issued with reason
+        // when it should not be possible
+        $course = Course::find($id);
+        $course->update( ['name' => $request->name, 'description' => $request->description, 'department_id' => $request->departmentId]);
+        return response()->json([
+            'status' => true,
+            'message' => "$course->name course updated successfully",
+            'data' => $course,
+
+
+
+        ], 200);
     }
 
     /**

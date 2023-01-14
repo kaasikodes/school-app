@@ -12,9 +12,14 @@ trait BaseUserTrait
 {
     public $defaultPassword = 'Inokpa123$';
 
-    public function addUserToSchool($userId,$schoolId)
+    public function addUserToSchool($userId,$schoolId,$choosenRole, $schoolUserRoles)
     {
-        
+      // TO DO
+      // Add consitons to ensure the table is doing what is suppose todo
+      // then also need to test it
+      // and also do this => addRoleToUserInSchool
+
+
         $school = School::find($schoolId);
         $school->users()->syncWithoutDetaching($userId);
         // make school default school if user has no default
@@ -23,15 +28,19 @@ trait BaseUserTrait
             $user->choosen_school_id = $schoolId;
             $user->save();
         }
-        $user->schools()->updateExistingPivot($school->id, ['choosen_role'=> 'none','school_user_roles'=> json_encode(['none'])]);
+        $choosenRole = $choosenRole ? $choosenRole : 'none';
+        $schoolUserRoles = $schoolUserRoles ? json_encode($schoolUserRoles) : json_encode(['none']);
+        $user->schools()->updateExistingPivot($school->id, ['choosen_role'=> $choosenRole,'school_user_roles'=>$schoolUserRoles ]);
+        $updatedSchool = $user->schools($school->id);
+        
         return $user;
 
     }
     public function addRoleToUserInSchool($userId,$schoolId,$roles)
     {
-        
+
         $user = User::find($userId);
-     
+
         $user->schools()->updateExistingPivot($schoolId, ['school_user_roles'=> json_encode($roles)]);
         return $user;
 
@@ -47,4 +56,3 @@ trait BaseUserTrait
 
     }
 }
-  

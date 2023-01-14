@@ -3,11 +3,11 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
-class NotifyUser extends Notification implements ShouldQueue
+class StaffProfileCreated extends Notification
 {
     use Queueable;
 
@@ -16,15 +16,9 @@ class NotifyUser extends Notification implements ShouldQueue
      *
      * @return void
      */
-    private $actionUrl, $message, $subject, $passwordText;
-
-     public function __construct($actionUrl, $message, $subject, $passwordText)
+    public function __construct()
     {
         //
-        $this->actionUrl = $actionUrl;
-        $this->message = $message;
-        $this->subject = $subject;
-        $this->passwordText = $passwordText;
     }
 
     /**
@@ -47,10 +41,8 @@ class NotifyUser extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject($this->subject)
-                    ->line($this->message)
-                    ->line($this->passwordText)
-                    ->action("Proceed",$this->actionUrl)
+                    ->line('The introduction to the notification.')
+                    ->action('Notification Action', url('/'))
                     ->line('Thank you for using our application!');
     }
 
