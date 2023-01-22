@@ -100,6 +100,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/levels/{id}/assign-session', [LevelController::class, 'assignToSession']);
     Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
     Route::get('/levels/{id}', [LevelController::class, 'show']);
+    Route::post('levels/assign-staff-to-handle-classes', [LevelController::class, 'assignStaffToHandleClassesForASession']);
 
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
@@ -108,6 +109,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/schools/{id}/courses', [CourseController::class, 'index']);
     Route::get('/courses/{id}', [CourseController::class, 'show']);
     Route::get('/courses/{id}/sessionCourseParticipants', [CourseController::class, 'sessionCourseParticipants']);
+    Route::get('/courses/{id}/sessionCourseSingleParticipant', [CourseController::class, 'sessionCourseSingleParticipant']);
+
     Route::post('/courses/addSessionCourseParticipant', [CourseController::class, 'addSessionCourseParticipant']);
     Route::post('/courses/addSessionCourseTeacher', [CourseController::class, 'addSessionCourseTeacher']);
     Route::get('/schools/{id}/coursesGroupedByLevel', [CourseController::class, 'coursesGroupedByLevel']);

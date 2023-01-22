@@ -112,6 +112,26 @@ class CourseController extends Controller
          return LevelResource::collection($levels);
          // return CourseResource::collection($results);
      }
+     public function sessionCourseSingleParticipant(Request $request,$courseId)
+     {
+        // return 'works';
+         // calculate the total from the breakdown sent | since your comfortable with
+         //  js calc from front and send to back
+
+         $sessionId = $request->sessionId;
+         $levelId = $request->levelId;
+         $studentId = $request->studentId;
+
+
+         $result = CourseParticipantRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->where('student_id',$studentId)->first();
+
+
+
+
+
+
+         return new CourseParticipantResource($result);
+     }
 
      public function sessionCourseParticipants(Request $request,$courseId)
      {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Level;
+use App\Models\ClassTeacherRecord;
 use App\Http\Resources\LevelResource;
 use App\Exports\LevelsExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -15,6 +16,51 @@ class LevelController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function assignStaffToHandleClassesForASession(Request $request)
+     {
+
+         // $currentSessionId = $school->current_session_id;
+         $currentSessionId = $request->sessionId;
+
+         $classStaffIds = $request->classStaffIds;
+
+         $records = [];
+
+         foreach ($classStaffIds as $entry) {
+           array_push($records, [
+               'school_session_id' => $currentSessionId,
+               'level_id'=>$entry['levelId'],
+               'staff_id'=>$entry['staffId'],
+               'created_at'=>date('Y-m-d H:i:s'),
+               'updated_at'=>date('Y-m-d H:i:s'),
+
+
+           ]);
+           // code...
+         }
+
+        ClassTeacherRecord::insert($records);
+
+
+
+         $recordCount = count($records);
+
+         // foreach ($staff as $staff) {
+         //   $staff->user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/", "You have been assigned to teach $course->name in  $classCount classes.", "You have been assigned $course->name to manage", "Classes: $levelsAsStr")));
+         // }
+
+
+         return response()->json([
+             'status' => true,
+             'message' => "Staff have been succesfully assigned to $recordCount classes!",
+             'data' => null,
+
+
+
+         ], 200);
+         // return new StaffResource($staff);
+     }
     public function index(Request $request, $id)
     {
         // PLease use resoURCES
