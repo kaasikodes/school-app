@@ -66,7 +66,7 @@ class CustodianController extends Controller
         $student = Student::find($request->studentId);
         $studentName = $student->user->name;
 
-        $user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/login", "Congratulations! You have been assigned as a cutodian to $studentName", "Custodian Profile Created", "Raise a child ....")));
+        $user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/login", "Congratulations! You have been assigned as a cutodian to $studentName", "Custodian Profile Created", "Password: $this->defaultPassword")));
 
         return new CustodianResource($custodian);
     }
