@@ -4,10 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Custodian;
+use App\Models\User;
+use App\Models\Student;
+
+use App\Traits\BaseUserTrait;
+
 use App\Http\Resources\CustodianResource;
+use App\Notifications\NotifyUser;
+
 
 class CustodianController extends Controller
 {
+  use BaseUserTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -39,8 +48,26 @@ class CustodianController extends Controller
      */
     public function store(Request $request)
     {
-        $custodian = Custodian::updateOrCreate([ 'user_id'=> $request->userId],['occupation'=> $request->occupation]);
-      
+        $user = User::where('email', $request->email)->first();
+        if(!$user){
+          $user = $this->createUser($request->name,
+              $request->email,
+              $request->password
+          );
+        }
+
+        // attach the user acc to a school
+        $this->addUserToSchool($user->id, $request->schoolId, 'custodian',['custodian']);
+        $custodian = Custodian::create([ 'user_id'=> $user->id, 'occupation'=> $request->occupation, 'alt_phone'=>$request->phone, 'alt_email'=>$request->email, 'school_id' => $request->schoolId, 'isActive' => $request->isActive ? $request->isActive : 1,]);
+
+        $custodian->students()->syncWithoutDetaching($request->studentId);
+
+        // inform the custodian via email that account has been created alonside the password to login
+        $student = Student::find($request->studentId);
+        $studentName = $student->user->name;
+
+        $user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/login", "Congratulations! You have been assigned as a cutodian to $studentName", "Custodian Profile Created", "Raise a child ....")));
+
         return new CustodianResource($custodian);
     }
 

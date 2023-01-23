@@ -99,6 +99,10 @@ class StudentController extends Controller
              $results = Student::where('school_id',$id)->whereLike(['user.name'], $request->searchTerm)->paginate($perPage);
          }
 
+
+         if($request->custodianId){
+             $results = Custodian::find($request->custodianId)->students;
+         }
          return StudentResource::collection($results);
     }
 
