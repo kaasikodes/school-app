@@ -52,7 +52,7 @@ class CustodianController extends Controller
         if(!$user){
           $user = $this->createUser($request->name,
               $request->email,
-              $request->password
+              $this->defaultPassword
           );
         }
 
