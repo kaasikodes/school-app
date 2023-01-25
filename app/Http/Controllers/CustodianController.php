@@ -22,7 +22,7 @@ class CustodianController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $id)
     {
         // return $results;
         $results = Custodian::with(['user'])->where('school_id',$id)->paginate($perPage);
