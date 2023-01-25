@@ -24,8 +24,9 @@ class CustodianController extends Controller
      */
     public function index(Request $request, $id)
     {
+       $perPage = $request->limit ? $request->limit : 4;
         // return $results;
-        $results = Custodian::with(['user'])->where('school_id',$id)->paginate($perPage);
+        $results = Custodian::with(['user', 'students'])->where('school_id',$id)->paginate($perPage);
         if($request->searchTerm){
             $results = Custodian::where('school_id',$id)->whereLike(['user.name', 'staff_no'], $request->searchTerm)->with(['user'])->paginate($perPage);
         }
