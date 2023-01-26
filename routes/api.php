@@ -168,6 +168,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // custodian
     Route::post('/custodians/save', [CustodianController::class, 'store']);
     Route::get('/schools/{id}/custodians', [CustodianController::class, 'index']);
+    Route::get('/custodians/{custodianId}', [StaffController::class, 'show']);
+
 
     // student
     Route::post('/schools/{schoolId}/enroll-new-student-for-session', [StudentController::class, 'enrollNewStudentForSession']);

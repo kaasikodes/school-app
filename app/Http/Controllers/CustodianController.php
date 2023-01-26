@@ -84,6 +84,26 @@ class CustodianController extends Controller
     public function show($id)
     {
         //
+        $custodian = Custodian::with('user')->find($id);
+      if($custodian ===  null){
+          return response()->json([
+              'status' => false,
+              'message' => 'This course doesn\'t exist.',
+              'data' => null,
+
+
+
+          ], 400);
+
+      }
+      return response()->json([
+          'status' => true,
+          'message' => "Staff retrieved successfully",
+          'data' => $custodian,
+
+
+
+      ], 200);
     }
 
     /**
