@@ -62,7 +62,10 @@ class CustodianController extends Controller
 
         // attach the user acc to a school
         $this->addUserToSchool($user->id, $request->schoolId, 'custodian',['custodian']);
+        
         $custodian = Custodian::create([ 'user_id'=> $user->id, 'occupation'=> $request->occupation, 'alt_phone'=>$request->phone, 'alt_email'=>$request->email, 'school_id' => $request->schoolId, 'isActive' => $request->isActive ? $request->isActive : 1,]);
+
+        $user->schools()->updateExistingPivot($request->schoolId,['custodian_id'=> $custodian->id]);
 
         $custodian->students()->syncWithoutDetaching($request->studentId);
 
