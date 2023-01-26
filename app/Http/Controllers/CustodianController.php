@@ -91,7 +91,7 @@ class CustodianController extends Controller
       if($custodian ===  null){
           return response()->json([
               'status' => false,
-              'message' => 'This course doesn\'t exist.',
+              'message' => 'This Custodian profile doesn\'t exist.',
               'data' => null,
 
 
@@ -101,7 +101,7 @@ class CustodianController extends Controller
       }
       return response()->json([
           'status' => true,
-          'message' => "Staff retrieved successfully",
+          'message' => "Custodian retrieved successfully",
           'data' => $custodian,
 
 
