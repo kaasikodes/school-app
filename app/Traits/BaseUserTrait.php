@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 trait BaseUserTrait
 {
+    // TO DO -> should be randomly generated
     public $defaultPassword = 'Inokpa123$';
 
     public function addUserToSchool($userId,$schoolId,$choosenRole, $schoolUserRoles)
