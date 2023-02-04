@@ -141,8 +141,9 @@ class CourseController extends Controller
 
          $sessionId = $request->sessionId;
          $levelId = $request->levelId;
+         $perPage = $request->limit ? $request->limit : 4;
 
-         $result = CourseParticipantRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->paginate();
+         $result = CourseParticipantRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->paginate($perPage);
 
 
 
