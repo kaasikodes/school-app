@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Course;
 use App\Models\Level;
 use App\Models\CourseParticipant;
+use App\Models\Student;
+
 
 
 
@@ -24,10 +26,10 @@ class CourseParticipantRecord extends Model
     {
         return $this->belongsTo(Level::class, 'level_id');
     }
-    
-    public function participant()
+
+    public function student()
     {
-        return $this->belongsTo(CourseParticipant::class);
+        return $this->belongsTo(Student::class);
     }
 
 
