@@ -139,10 +139,27 @@ class CourseController extends Controller
 
          $sessionId = $request->sessionId;
          $levelId = $request->levelId;
-         $studentId = $request->studentId;
+
 
 
          $result = CourseOverviewRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->first();
+
+
+         return new CourseOverviewResource($result);
+     }
+     public function saveSessionCourseSingleOverview(Request $request)
+     {
+        // return 'works';
+         // calculate the total from the breakdown sent | since your comfortable with
+         //  js calc from front and send to back
+
+         $sessionId = $request->sessionId;
+         $levelId = $request->levelId;
+         $courseId = $request->courseId;
+
+
+
+         $result = CourseOverviewRecord::updateOrCreate(['school_session_id'=> $sessionId, 'level_id'=>$levelId, 'course_id', $courseId], ['brief'=>$request->brief, 'break_down' => $request->breakDown]);
 
 
          return new CourseOverviewResource($result);
