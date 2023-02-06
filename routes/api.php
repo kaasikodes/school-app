@@ -110,6 +110,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/courses/{id}', [CourseController::class, 'show']);
     Route::get('/courses/{id}/sessionCourseParticipants', [CourseController::class, 'sessionCourseParticipants']);
     Route::get('/courses/{id}/sessionCourseSingleParticipant', [CourseController::class, 'sessionCourseSingleParticipant']);
+    Route::get('/courses/{id}/sessionCourseSingleOverview', [CourseController::class, 'sessionCourseSingleOverview']);
 
     Route::post('/courses/addSessionCourseParticipant', [CourseController::class, 'addSessionCourseParticipant']);
     Route::post('/courses/addSessionCourseTeacher', [CourseController::class, 'addSessionCourseTeacher']);

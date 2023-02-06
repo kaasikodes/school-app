@@ -11,6 +11,7 @@ use App\Models\CourseTeacher;
 use App\Models\CourseLesson;
 use App\Models\CourseAssessment;
 use App\Models\CourseParticipantRecord;
+use App\Models\CourseOverviewRecord;
 use App\Models\CourseTeacherRecord;
 use App\Models\CourseAssessmentQuestion;
 use App\Models\CourseAssessmentSection;
@@ -22,6 +23,7 @@ use App\Http\Resources\CourseResource;
 use App\Http\Resources\LevelResource;
 use App\Http\Resources\SchoolSessionCourse;
 use App\Http\Resources\CourseParticipantResource;
+use App\Http\Resources\CourseOverviewResource;
 use App\Exports\CoursesExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Notifications\NotifyUser;
@@ -126,11 +128,24 @@ class CourseController extends Controller
          $result = CourseParticipantRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->where('student_id',$studentId)->first();
 
 
-
-
-
-
          return new CourseParticipantResource($result);
+     }
+
+     public function sessionCourseSingleOverview(Request $request,$courseId)
+     {
+        // return 'works';
+         // calculate the total from the breakdown sent | since your comfortable with
+         //  js calc from front and send to back
+
+         $sessionId = $request->sessionId;
+         $levelId = $request->levelId;
+         $studentId = $request->studentId;
+
+
+         $result = CourseOverviewRecord::where('school_session_id', $sessionId)->where('level_id',$levelId)->where('course_id', $courseId)->first();
+
+
+         return new CourseOverviewResource($result);
      }
 
      public function sessionCourseParticipants(Request $request,$courseId)
