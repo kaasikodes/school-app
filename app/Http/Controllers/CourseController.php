@@ -159,7 +159,7 @@ class CourseController extends Controller
 
 
 
-         $result = CourseOverviewRecord::updateOrCreate(['school_session_id'=> $sessionId, 'level_id'=>$levelId, 'course_id', $courseId], ['brief'=>$request->brief, 'break_down' => $request->breakDown]);
+         $result = CourseOverviewRecord::updateOrCreate(['school_session_id'=> $sessionId, 'level_id'=>$levelId, 'course_id'=> $courseId], ['brief'=>$request->brief, 'break_down' => $request->breakDown]);
 
 
          return new CourseOverviewResource($result);

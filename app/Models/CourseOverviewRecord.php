@@ -10,7 +10,7 @@ use App\Models\Level;
 
 
 
-class CourseTeacherRecord extends Model
+class CourseOverviewRecord extends Model
 {
     use HasFactory;
     protected $table = 'course_overview_records';
