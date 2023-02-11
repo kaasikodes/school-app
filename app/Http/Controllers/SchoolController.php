@@ -35,7 +35,7 @@ class SchoolController extends Controller
              $user = User::create([
                  'name' => $request->userFullName,
                  'email' => $request->userEmail,
-                 'password' => Hash::make($request->userPassword)
+                 'password' => Hash::make($request->password)
              ]);
            }
            // create schools
