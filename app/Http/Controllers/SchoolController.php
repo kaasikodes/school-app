@@ -54,7 +54,7 @@ class SchoolController extends Controller
            // add the user who created the school to :the school as admin
            $school->users()->syncWithoutDetaching($user->id);
            $admin = Admin::create(['user_id'=>$user->id, 'school_id'=>$school->id]);
-           $staff = Staff::create(['user_id'=>$user->id, 'school_id'=>$school->id]);
+           $staff = Staff::create(['user_id'=>$user->id, 'school_id'=>$school->id, 'staff_no' => '0001']);
            // make user admin in school created
            $user->schools()->updateExistingPivot($school->id, ['staff_id'=>$staff->id, 'admin_id'=>$admin->id,'choosen_role'=> 'admin','school_user_roles'=> json_encode(['admin','staff'])]);
 
