@@ -68,7 +68,8 @@ class LevelController extends Controller
 
         $results = Level::with('courses')->where('school_id',$id)->paginate($perPage);
         if($request->searchTerm){
-            $results = Level::where('school_id',$id)->whereLike(['name'], $request->searchTerm)->paginate($perPage);
+
+            $results = Level::with('courses')->where('school_id',$id)->whereLike(['name'], $request->searchTerm)->paginate($perPage);
         }
 
         return LevelResource::collection($results);

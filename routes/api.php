@@ -201,5 +201,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 
 });
-// Route::get('/levels', [LevelController::class, 'index']);
+
 // Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
