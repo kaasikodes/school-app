@@ -90,6 +90,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/departments/add-bulk', [DepartmentController::class, 'addDepartmentsInBulk']);
     Route::get('/schools/{id}/departments', [DepartmentController::class, 'index']);
     Route::get('/departments/{id}', [DepartmentController::class, 'show']);
+    Route::delete('/departments/{id}', [DepartmentController::class, 'destroy']);
 
 
 

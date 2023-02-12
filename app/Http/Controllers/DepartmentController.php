@@ -188,5 +188,24 @@ class DepartmentController extends Controller
     public function destroy($id)
     {
         //
+        $department = Department::find($id);
+        $deptCount =count($deparment->courses);
+        if($deptCount > 0){
+          return response()->json([
+              'status' => true,
+              'message' => "Department cannot be deleted beacause it is being used by $deptCount courses",
+              'data' => $department,
+
+          ], 200);
+
+        }
+        $department->delete();
+        return response()->json([
+            'status' => true,
+            'message' => "$department->name deparment was deleted successfully",
+            'data' => $department,
+
+        ], 200);
+
     }
 }
