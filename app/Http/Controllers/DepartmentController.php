@@ -189,14 +189,14 @@ class DepartmentController extends Controller
     {
         //
         $department = Department::find($id);
-        $deptCount =count($deparment->courses);
+        $deptCount =count($department->courses);
         if($deptCount > 0){
           return response()->json([
-              'status' => true,
-              'message' => "Department cannot be deleted beacause it is being used by $deptCount courses",
+              'status' => false,
+              'message' => "Department cannot be deleted because it is being used by $deptCount courses",
               'data' => $department,
 
-          ], 200);
+          ], 400);
 
         }
         $department->delete();
