@@ -55,6 +55,7 @@ class DepartmentController extends Controller
           if($request->id && $request->schoolId !==  Department::find($request->id)->school_id  ){
              return 'Not allowed';
          }
+         $adminId = auth()->user()->schools()->firstWhere('school_id',$request->schoolId)->pivot->admin_id;
          // create the departments
          $entries = $request->jsonData;
          $records = [];
@@ -66,7 +67,7 @@ class DepartmentController extends Controller
                 'school_id'=>$request->schoolId,
                 'created_at'=>date('Y-m-d H-i-s'),
                 'updated_at'=>date('Y-m-d H-i-s'),
-                'admin_id'=>$request->adminId
+                'admin_id'=>$adminId
 
             ]);
          }
@@ -91,8 +92,8 @@ class DepartmentController extends Controller
             return 'Not allowed';
         }
         // create the departments
-
-        $department = Department::create([ 'name' => $request->name, 'description'=> $request->description, 'school_id'=>$request->schoolId,'admin_id'=>$request->adminId]);
+        $adminId = auth()->user()->schools()->firstWhere('school_id',$request->schoolId)->pivot->admin_id;
+        $department = Department::create([ 'name' => $request->name, 'description'=> $request->description, 'school_id'=>$request->schoolId,'admin_id'=>$adminId]);
 
         return response()->json([
             'status' => true,
