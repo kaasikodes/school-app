@@ -79,8 +79,6 @@ class AuthController extends Controller
                     'status' => false,
                     'message' => 'Email & Password does not match with our record.',
                 ], 401);
-            }else{
-              $request->session()->regenerate();
             }
 
             $user = User::where('email', $request->email)->first();
