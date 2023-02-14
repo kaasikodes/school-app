@@ -180,6 +180,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/student/{id}/assign-custodian', [StudentController::class, 'assignToCustodian']);
     // /api/student/${studentId}/studentSessionCoursesGroupedByLevel?sessionId=${sessionId}&levelId=${levelId}
     Route::get('/student/{staffId}/studentSessionCoursesGroupedByLevel', [StudentController::class, 'studentSessionCoursesGroupedByLevel']);
+    Route::post('/students/add-bulk', [StudentController::class, 'addStudentInBulk']);
 
 
     // payment

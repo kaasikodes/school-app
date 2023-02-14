@@ -110,7 +110,7 @@ class StaffController extends Controller
             $results =CourseTeacherRecord::whereLike(['course.name'], $request->searchTerm)->with(['course', 'staff'])->where('staff_id',$staffId)->where('school_session_id',$sessionId)->paginate($perPage);
         }
         if($request->levelId && $request->searchTerm){
-          
+
             $results =CourseTeacherRecord::whereLike(['course.name'], $request->searchTerm)->with(['course', 'staff.user'])->where('staff_id',$staffId)->where('level_id',$levelId)->where('school_session_id',$sessionId)->paginate($perPage);
         }
         if($request->levelId){
@@ -149,7 +149,7 @@ class StaffController extends Controller
     }
     public function addStaffInBulk(Request $request)
     {
-        $password = 'Inokpa123$';
+        $password = $this->defaultPassword;
          //validate the request
          if($request->id && $request->schoolId !==  Staff::find($request->id)->school_id  ){
             return 'Not allowed';

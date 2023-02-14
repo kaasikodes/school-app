@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\SchoolUser;
+
 use App\Models\StudentSessionPayment;
 use App\Models\LevelSchoolFee;
 use App\Models\EnrolledStudent;
@@ -127,6 +129,155 @@ class StudentController extends Controller
          //
          return Excel::download(new StudentsExport($schoolId), 'students.xlsx');
      }
+     public function addStudentInBulk(Request $request)
+     {
+       $school = School::find($request->schoolId);
+       $currentSessionId = $school->current_session_id;
+         $password = $this->defaultPassword;
+          //validate the request
+          if($request->id && $request->schoolId !==  Student::find($request->id)->school_id  ){
+             return 'Not allowed';
+         }
+         // create the departments
+         $entries = $request->jsonData;
+         $records = [];
+         // TO do
+         // The user accounts should first be created with unique emails / or found if they exist
+         // when created they should be iterated over while comparing with the array sent
+         // this will then result in a user id merger that will allow a fully formed array that can be inserted
+         // should be a try & catch and validation has to exist
+         // notify all accounts
+         // also do you want all staff to be able to login
+         // or rather staff accounts alone be created for them
+         // and on login the user account is created for them
+
+         // create user in bulk
+         // create/update user/school in bulk
+         // create staff account in bulk
+         // notify all concerned
+         $emails = [];
+         foreach ($entries as $entry) {
+            # code...
+            array_push($emails,$entry['student email']);
+         }
+         $users = User::whereIn('email',$emails)->get();
+
+         $emailsWithAccounts = [];
+         foreach ($users as $user) {
+
+            array_push($emailsWithAccounts,$user->email);
+         }
+         $emailsWithoutAccounts = [];
+         foreach ($emails as $email) {
+            # code...
+            if (!in_array($email,$emailsWithAccounts)) {
+              // code...
+              array_push($emailsWithoutAccounts,$email);
+
+
+            }
+         }
+         $entriesWithoutAccounts = [];
+
+         // create user accounts for emails without one
+         foreach ($entries as $entry) {
+            # code...
+            if (!in_array($entry['student email'],$emailsWithAccounts)) {
+              $userName = $entry['student first name'] ." ".$entry['student middle name']." ". $entry['student last name'];
+
+              array_push($entriesWithoutAccounts, [
+                  // 'name'=>"$entry['first name']" ." $entry['last name']",
+                  'name' => $userName,
+                  'email' => $entry['student email'],
+                  'choosen_school_id'=>$request->schoolId,
+                  'password' => Hash::make($password),
+                  'created_at'=>date('Y-m-d H:i:s'),
+                  'updated_at'=>date('Y-m-d H:i:s'),
+
+
+              ]);
+          }
+         }
+         // Insert the user records
+         $users = User::insert($entriesWithoutAccounts);
+         $allUsers = User::whereIn('email',$emails)->get();
+         // Insert many to many record with appropriate role
+
+
+         $studentEntries = [];
+         foreach ($allUsers as $user) {
+           $levelName = $this->findStudentByEmail($user->email, $entries)['student current class'];
+           $level = Level::where('name', $levelName)->where('school_id', $request->schoolId)->first();
+
+            array_push($studentEntries, [
+
+                'id_number' => $this->findStudentByEmail($user->email, $entries)['student ID'],
+                'user_id' => $user->id,
+                'school_id' => $request->schoolId ,'current_level_id'=> $level->id,  'latest_session_id' => $currentSessionId,
+                'created_at'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'),
+
+
+            ]);
+         }
+         $students = Student::insert($studentEntries);
+         $userIds = $allUsers->map(function ($item, $key) {
+             return $item['id'];
+         });
+
+         $studentRecords = Student::where('school_id', $request->schoolId )->whereIn('user_id', $userIds)->get();
+
+
+
+         $schoolUserEntries = [];
+         foreach ($studentRecords as $record) {
+
+
+            array_push($schoolUserEntries, [
+
+                'user_id' => $record->user_id,
+                'school_id'=>$request->schoolId,
+                'choosen_role'=>'student',
+                'school_user_roles'=>'["student"]',
+                'staff_id' =>$record->id,
+
+                'created_at'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'),
+
+
+            ]);
+         }
+         SchoolUser::insert($schoolUserEntries);
+
+         $school = School::find($request->schoolId);
+
+         // notify all users
+         Notification::send($allUsers,new NotifyUser(env('APP_FRONTEND_URL')."/login", "Congratulations! You have been added as a student to $school->name", "Student Profile Created", "Password: $password"));
+
+
+
+
+         return response()->json([
+            'status' => true,
+            'message' => count($studentRecords)  .' students were added successfully!',
+            'data' => $studentRecords,
+
+
+
+        ], 200);
+     }
+     private function findStudentByEmail($email, $entries)
+     {
+       // code...
+       foreach ($entries as $entry) {
+
+          if($entry['student email'] === $email){
+            return $entry;
+          }
+       }
+       return null;
+     }
+
     public function enrollNewStudentForSession(Request $request, $schoolId)
     {
         // idNo: string;
