@@ -638,7 +638,7 @@ class CourseController extends Controller
     {
         //
 
-        $course = Course::with('levels')->find($id);
+        $course = Course::with(['levels', 'department'])->find($id);
         if($course ===  null){
             return response()->json([
                 'status' => false,
@@ -685,6 +685,22 @@ class CourseController extends Controller
         // when it should not be possible
         $course = Course::find($id);
         $course->update( ['name' => $request->name, 'description' => $request->description, 'department_id' => $request->departmentId]);
+        $records = [];
+        $levels = $request->levels;
+        if($levels && count($levels) > 0){
+
+          foreach ($levels as $level) {
+             # code...
+             array_push($records,[
+               'level_id'=>$level,
+               'course_id' => $course->id,
+               'created_at'=>date('Y-m-d H:i:s'),
+               'updated_at'=>date('Y-m-d H:i:s'),
+             ]);
+          }
+          CourseLevel::insert($records);
+
+        }
         return response()->json([
             'status' => true,
             'message' => "$course->name course updated successfully",
