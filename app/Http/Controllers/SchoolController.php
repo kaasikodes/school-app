@@ -182,6 +182,18 @@ class SchoolController extends Controller
 
         ], 200);
     }
+    // schools settings
+    public function saveSchoolSessionSetting(Request $request , $schoolId)
+    {
+        $result = SchoolSessionSetting::updateOrCreate(['school_id'=> $schoolId, 'session_id' => $request->sessionId],['course_record_template_id'=> $request->templateId, 'grading_policy_id'=>$request->gradePolicyId, 'student_enrollment_policy_id' => $request->studentEnrollmentPolicyId]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'School session settings saved succesfully!',
+            'data' => $result,
+
+        ], 200);
+    }
     public function getSchoolSessionSetting(Request $request , $schoolId, $sessionId)
     {
         $result = SchoolSessionSetting::where(['school_id'=> $schoolId, 'session_id' => $sessionId])->first();
