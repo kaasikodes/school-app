@@ -65,6 +65,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/schools/{id}/add-user', [SchoolController::class, 'addUserToSchool']);
     // school session templates & policies
     Route::post('/schools/{id}/setup-session-course-record-template', [SchoolController::class, 'setupSchoolSessionCRTemplate']);
+    // school session setting
+    Route::post('/schools/{id}/save-school-session-setting', [SchoolController::class, 'saveSchoolSessionSetting']);
     // course record template
     Route::post('/schools/{id}/save-course-record-template', [SchoolController::class, 'saveCourseRecordTemplate']);
     Route::get('/schools/{id}/course-record-templates', [SchoolController::class, 'getCourseRecordTemplates']);
