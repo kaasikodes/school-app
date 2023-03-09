@@ -17,7 +17,6 @@ services:
             - 8000:8000
         depends_on:
             - database
-            - redis
 
     # Database server
     database:
@@ -32,11 +31,6 @@ services:
             - MYSQL_ALLOW_EMPTY_PASSWORD=true
         volumes:
             - db-data:/var/lib/mysql
-    # Redis Server
-    redis:
-        image: redis:alpine
-        command: redis-server --appendonly yes --requirepass  "${REDIS_PASSWORD}"
-        ports:
-            - 6379:6379
+
 volumes:
     db-data: ~
