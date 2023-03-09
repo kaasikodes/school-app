@@ -6,6 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+
+use Illuminate\Routing\UrlGenerator;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -24,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
     
-    public function boot()
+    public function boot(UrlGenerator $url)
     {
         // search
         
@@ -50,7 +53,11 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
 
-
+        // enforce https
+        if (env('APP_ENV') == 'production') {
+            $url->forceScheme('https');
+        }
+        
         // api resource
         // JsonResource::withoutWrapping();
     }
