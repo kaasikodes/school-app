@@ -27,7 +27,7 @@ use App\Http\Controllers\AdminController;
 |
 */
 Route::post('/register', [AuthController::class, 'createAccount'])->name('createAccount');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+// Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/schools/register-school', [SchoolController::class, 'registerSchool']);
 
 
