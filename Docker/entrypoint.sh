@@ -5,8 +5,7 @@ if [ ! -f "vendor/autoload.php" ]; then
 fi
 
 
-echo "Creating env file for env $APP_ENV"
-cp  .env.local .env
+
 
 
 php artisan migrate
