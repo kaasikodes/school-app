@@ -17,7 +17,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->boolean('isActive')->default(true);
-            $table->string('admin_no')->nullable()->unique('staff_staff_no_unique');
+            // $table->string('admin_no')->nullable()->unique('staff_staff_no_unique');
+            $table->string('admin_no')->nullable()->unique();
             $table->timestamps();
             $table->unsignedBigInteger('school_id');
         });
