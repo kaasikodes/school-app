@@ -22,7 +22,8 @@ return new class extends Migration
             $table->longText('break_down');
             $table->timestamps();
 
-            $table->unique(['course_id', 'level_id', 'school_session_id'], 'Teacher UNIQUE KEY');
+            // $table->unique(['course_id', 'level_id', 'school_session_id'], 'Teacher UNIQUE KEY');
+            $table->unique(['course_id', 'level_id', 'school_session_id']);
         });
     }
 
