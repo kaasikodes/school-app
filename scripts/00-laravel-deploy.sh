@@ -12,5 +12,3 @@ php artisan route:cache
 echo "Running migrations..."
 php artisan migrate:fresh
 
-echo "Route list..."
-php artisan route:list
