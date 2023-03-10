@@ -9,6 +9,9 @@ php artisan config:clear
 echo "Clear routes..."
 php artisan route:clear
 
+echo "Clear caches..."
+php artisan cache:clear
+
 echo "Caching config..."
 php artisan config:cache
 
