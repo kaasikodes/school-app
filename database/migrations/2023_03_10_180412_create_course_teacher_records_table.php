@@ -13,17 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('course_overview_records', function (Blueprint $table) {
+        Schema::create('course_teacher_records', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('staff_id');
+            $table->unsignedTinyInteger('can_record')->default(0);
+            $table->unsignedTinyInteger('can_create_assessment')->default(0);
+            $table->unsignedTinyInteger('can_add_remove_course_participant')->default(0);
             $table->unsignedBigInteger('course_id');
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('school_session_id');
-            $table->text('brief');
-            $table->longText('break_down');
             $table->timestamps();
 
-            // $table->unique(['course_id', 'level_id', 'school_session_id'], 'Teacher UNIQUE KEY');
-            $table->unique(['course_id', 'level_id', 'school_session_id']);
+            $table->unique(['staff_id', 'course_id', 'level_id', 'school_session_id'], 'Teacher UNIQUE KEY');
         });
     }
 
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('course_overview_records');
+        Schema::dropIfExists('course_teacher_records');
     }
 };

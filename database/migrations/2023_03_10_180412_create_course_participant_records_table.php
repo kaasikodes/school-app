@@ -27,8 +27,7 @@ return new class extends Migration
             $table->string('remark', 50)->nullable();
             $table->timestamps();
 
-            // $table->unique(['course_id', 'school_session_id', 'level_id', 'student_id'], 'Participant UNIQUE KEY');
-            $table->unique(['course_id', 'school_session_id', 'level_id', 'student_id']);
+            $table->unique(['course_id', 'school_session_id', 'level_id', 'student_id'], 'Participant UNIQUE KEY');
         });
     }
 
