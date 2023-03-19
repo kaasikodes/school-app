@@ -88,7 +88,7 @@ class SchoolController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Template retrieved succesfully!',
+            'message' => 'User schools retrieved succesfully!',
             'data' => $results,
 
         ], 200);
@@ -101,6 +101,18 @@ class SchoolController extends Controller
         $school = School::find($id);
         $school->users()->syncWithoutDetaching($request->userId);
         return ['message'=>'This user was successfully added to the school'];
+
+    }
+    public function allSchools(Request $request)
+    {
+        // return 'works';
+        $results = School::all();
+        return response()->json([
+            'status' => true,
+            'message' => 'Existing schools retrieved succesfully!',
+            'data' => $results,
+
+        ], 200);
 
     }
 
