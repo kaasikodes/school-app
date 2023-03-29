@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('school_session_id');
             $table->timestamps();
 
-            $table->unique(['staff_id', 'course_id', 'level_id', 'school_session_id']);
+            $table->unique(['staff_id', 'course_id', 'level_id', 'school_session_id'], 'unique_course_teacher_record');
         });
     }
 
