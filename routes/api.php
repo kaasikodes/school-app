@@ -104,6 +104,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
     Route::get('/levels/{id}', [LevelController::class, 'show']);
     Route::post('levels/assign-staff-to-handle-classes', [LevelController::class, 'assignStaffToHandleClassesForASession']);
+    Route::get('levels/class-teacher-records/{sessionId}', [LevelController::class, 'classTeacherRecordsPerSession']);
 
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
