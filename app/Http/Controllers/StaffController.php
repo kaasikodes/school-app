@@ -87,7 +87,7 @@ class StaffController extends Controller
 
 
         // return $results;
-        $results = Staff::with(['user'])->where('school_id',$id)->paginate($perPage);
+        $results = Staff::with(['user', 'classTeacherRecords'])->where('school_id',$id)->paginate($perPage);
         if($request->searchTerm){
             $results = Staff::where('school_id',$id)->whereLike(['user.name', 'staff_no'], $request->searchTerm)->with(['user'])->paginate($perPage);
         }
