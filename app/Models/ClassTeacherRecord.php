@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Course;
+use App\Models\Staff;
 use App\Models\Level;
 use App\Models\CourseTeacher;
 
@@ -20,9 +20,10 @@ class ClassTeacherRecord extends Model
     {
         return $this->belongsTo(Level::class, 'level_id');
     }
-    public function course()
+
+    public function staff()
     {
-        return $this->belongsTo(Course::class, 'course_id');
+        return $this->belongsTo(Staff::class, 'staff_id');
     }
     
 
