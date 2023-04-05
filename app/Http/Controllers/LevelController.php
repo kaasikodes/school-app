@@ -179,10 +179,14 @@ class LevelController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    
+    public function show(Request $request, $id)
     {
-        //
-        $level =Level::find($id);
+        $sessionId = $request->sessionId;
+        $level =Level::with(['courses'] )->find($id);
+        if($sessionId ){
+            $level =Level::with(['courses.courseTeacherRecords' => fn($q) => $q->where('school_session_id', $sessionId)->where('level_id', $id)->with('staff.user')->get()] )->find($id);
+        }
         if($level ===  null){
             return response()->json([
                 'status' => false,

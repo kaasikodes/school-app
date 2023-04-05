@@ -332,7 +332,7 @@ class StaffController extends Controller
         $user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/login", "Congratulations! You have been added as a staff to $school->name", "Staff Profile Created", "Password: $request->password")));
 
         return response()->json([
-            'status' => false,
+            'status' => true,
             'message' => "$user->name's staff profile created successfully",
             'data' => $staff,
 
@@ -404,7 +404,7 @@ class StaffController extends Controller
         $staff->user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/login", "Congratulations! You have been added as a staff to $school->name", "Staff Profile Updated", "Staff No: $request->staffNo")));
 
         return response()->json([
-            'status' => false,
+            'status' => true,
             'message' => "$user->name's staff profile updated successfully",
             'data' => $staff,
 
