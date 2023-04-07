@@ -70,17 +70,24 @@ class StudentController extends Controller
         // or consider join
         // or on frontend do the necessary -- bingo
 
+        $courseParticipantsForSession = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$request->sessionId)->get();
+
+        $ans = $courseParticipantsForSession->groupBy(['level_id'])->all();
+
+
+
+        // ______________________________________________________________
         $courses = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$request->sessionId)->where('student_id',$studentId)->get();
 
-        $coursesGroupedByLevel = $courses->groupBy('level_id')->all();
+        $coursesGroupedByLevelForStudent = $courses->groupBy('level_id')->all();
 
 
 
         // also return the level details, so you can group it properly
-        // return both and seperate in frontend
+        // return both and seperate in frontendForStudent
         // START FROM HERE -> api.php -> postman  -> frontend
 
-        $data =  [ 'courses'=> $courses , 'coursesGroupedByLevel' => $coursesGroupedByLevel, ];
+        $data =  [ 'courses'=> $courses , 'coursesGroupedByLevel' => $coursesGroupedByLevelForStudent, 'ans'=> $ans];
 
         return new StaffSessionCourseNLevelResource($data);
 
