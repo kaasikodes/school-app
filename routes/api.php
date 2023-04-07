@@ -224,4 +224,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 });
 
 Route::get('/schools', [SchoolController::class, 'allSchools']);
+Route::get('/student/academic-result', [StudentController::class, 'studentAcademicResult']);
 

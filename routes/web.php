@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StudentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,7 @@ Route::get('/', function () {
 });
 Route::get('/departments/bulk-template', [DepartmentController::class, 'exportBulkUpload']);
 
+Route::get('/student/academic-result', [StudentController::class, 'studentAcademicResultView']);
 
 Route::middleware([
     'auth:sanctum',

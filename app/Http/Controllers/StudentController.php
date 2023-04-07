@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use PDF;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\User;
@@ -15,13 +16,12 @@ use App\Models\Custodian;
 use App\Models\School;
 use App\Models\Level;
 use App\Models\Course;
+use App\Models\SchoolSessionSetting;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NotifyUser;
 use App\Exports\StudentsExport;
 use Maatwebsite\Excel\Facades\Excel;
-
-
 use App\Http\Resources\StaffSessionCourseNLevelResource;
 
 
@@ -40,6 +40,56 @@ class StudentController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+    public function studentAcademicResultView(Request $request)
+    {
+        $studentId= $request->studentId;
+        $sessionId= $request->sessionId;
+        $levelId= $request->levelId;
+        $schoolId= $request->schoolId;
+        $setting = SchoolSessionSetting::where('session_id', $sessionId)->where('school_id', $schoolId)->first();
+        return $setting;
+        // TO DO: check to see wether is custodian or student or admin or staff-classteacher if not throw err
+        // TO DO: throw err if the required params are not provided
+        $courses = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$sessionId)->where('student_id',$studentId)->where('level_id',$levelId)->get();
+
+       
+
+        return view('student.result', [
+            'courses'=> $courses,
+            'title' => 'CodeAndDeploy.com Laravel Pdf Tutorial',
+            'description' => 'This is an example Laravel pdf tutorial.',
+            'footer' => 'by <a href="https://codeanddeploy.com">codeanddeploy.com</a>'
+        ]);
+    
+    }
+    public function studentAcademicResult(Request $request)
+    {
+        $studentId= $request->studentId;
+        $sessionId= $request->sessionId;
+        $levelId= $request->levelId;
+        $schoolId= $request->schoolId;
+        $school = School::find($schoolId);
+        $student = Student::find($studentId);
+        $setting = SchoolSessionSetting::where('session_id', $sessionId)->where('school_id', $schoolId)->first();
+        // TO DO: check to see wether is custodian or student or admin or staff-classteacher if not throw err
+        // TO DO: throw err if the required params are not provided
+        $courses = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$sessionId)->where('student_id',$studentId)->where('level_id',$levelId)->get();
+
+        $data = [
+            'student'=>$student,
+            'school'=>$school,
+            'setting'=>$setting,
+            'courses'=> $courses,
+            'title' => 'Academic Progress Report',
+            'description' => 'This is an example Laravel pdf tutorial.',
+            'footer' => 'by <a href="https://codeanddeploy.com">codeanddeploy.com</a>'
+        ];
+        $pdf = PDF::loadView('student.result', $data);
+        return $pdf->stream('resume.pdf');
+
+        // return $pdf->download('sample.pdf');
+    
+    }
     public function singleStudent(Request $request, $schoolId, $studentId)
     {
         //
@@ -70,13 +120,7 @@ class StudentController extends Controller
         // or consider join
         // or on frontend do the necessary -- bingo
 
-        $courseParticipantsForSession = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$request->sessionId)->get();
 
-        $ans = $courseParticipantsForSession->groupBy(['level_id'])->all();
-
-
-
-        // ______________________________________________________________
         $courses = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$request->sessionId)->where('student_id',$studentId)->get();
 
         $coursesGroupedByLevelForStudent = $courses->groupBy('level_id')->all();
@@ -87,7 +131,7 @@ class StudentController extends Controller
         // return both and seperate in frontendForStudent
         // START FROM HERE -> api.php -> postman  -> frontend
 
-        $data =  [ 'courses'=> $courses , 'coursesGroupedByLevel' => $coursesGroupedByLevelForStudent, 'ans'=> $ans];
+        $data =  [ 'courses'=> $courses , 'coursesGroupedByLevel' => $coursesGroupedByLevelForStudent];
 
         return new StaffSessionCourseNLevelResource($data);
 
