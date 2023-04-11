@@ -1,0 +1,8 @@
+.header {
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 400;
+    text-transform: uppercase;
+    display: inline-block;
+    background: red;
+}
