@@ -14,6 +14,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CustodianController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\InvitesController;
 
 
 /*
@@ -27,14 +28,21 @@ use App\Http\Controllers\AdminController;
 |
 */
 Route::post('/register', [AuthController::class, 'createAccount'])->name('createAccount');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('register/{schoolId}/user-type', [AuthController::class, 'createAccountFromInvitation'])->name('createAccountFromInvitation');
+Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/schools/register-school', [SchoolController::class, 'registerSchool']);
+Route::post('/schools/{schoolId}/register-staff', [SchoolController::class, 'registerStaff']);
+
+// user => TO DO: should guard with token middleware, as per a client-side request before authentication
+Route::get('/user-by-email', [UserController::class, 'getUserByEmail']);
+
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::get('users/export/', [UserController::class, 'export']);
+Route::get('/invites/export/bulk-template', [InvitesController::class, 'exportBulkUpload']);
 Route::get('/departments/export/bulk-template', [DepartmentController::class, 'exportBulkUpload']);
 Route::get('/levels/export/bulk-template', [LevelController::class, 'exportBulkUpload']);
 Route::get('/courses/export/bulk-template', [CourseController::class, 'exportBulkUpload']);
@@ -94,6 +102,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/departments/{id}', [DepartmentController::class, 'show']);
     Route::delete('/departments/{id}', [DepartmentController::class, 'destroy']);
 
+    // invitations
+    // create 
+    Route::post('/invites/create', [InvitesController::class, 'store']);
+    Route::get('/invites/{schoolId}', [InvitesController::class, 'index']);
+    
+
+
 
 
     //levels
@@ -104,6 +119,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
     Route::get('/levels/{id}', [LevelController::class, 'show']);
     Route::post('levels/assign-staff-to-handle-classes', [LevelController::class, 'assignStaffToHandleClassesForASession']);
+    Route::get('levels/class-teacher-records/{sessionId}', [LevelController::class, 'classTeacherRecordsPerSession']);
 
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
@@ -120,6 +136,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/schools/{id}/coursesGroupedByLevel', [CourseController::class, 'coursesGroupedByLevel']);
     Route::post('/save-participant-record', [CourseController::class, 'saveParticipantRecord']);
     Route::post('courses/assign-staff-to-handle-course-in-classes', [CourseController::class, 'assignStaffToHandleCourseInClassesForASession']);
+    Route::post('courses/assign-staff-to-level-courses/{levelId}/{sessionId}', [CourseController::class, 'assignStaffToLevelCoursesForSession']);
 
 
 
@@ -206,4 +223,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 });
 
-// Route::get('/schools/{id}/levels', [LevelController::class, 'index']);
+Route::get('/schools', [SchoolController::class, 'allSchools']);
+Route::get('/student/academic-result', [StudentController::class, 'studentAcademicResult']);
+

@@ -5,13 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\LevelTeacher;
+use App\Models\ClassTeacherRecord;
 use App\Models\Course;
+use App\Models\User;
 
 
 class Level extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+    
+    
 
     public function schoolSessions()
     {
@@ -24,6 +29,10 @@ class Level extends Model
     public function teachers()
     {
         return $this->hasMany(LevelTeacher::class);
+    }
+    public function classSessionTeachers()
+    {
+        return $this->hasMany(ClassTeacherRecord::class, 'level_id');
     }
     
 }

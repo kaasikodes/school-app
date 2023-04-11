@@ -24,6 +24,62 @@ class SchoolController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+     public function registerStaff(Request $request, $schoolId)
+     {
+         try{
+           //create user or get user if users exists already
+           $user = User::where('email', $request->userEmail)->first();
+
+           if(!$user){
+             // consider verifying by email & the forgot password
+             $user = User::create([
+                 'name' => $request->userFullName,
+                 'email' => $request->userEmail,
+                 'password' => Hash::make($request->password)
+             ]);
+           }
+           // create schools
+           // assign the user an admin and a staff role
+           //validate the request
+           // create the school
+           $school = School::find($schoolId);
+           if(!$school){
+            // throw err / or return proper response
+            
+           }
+            //TO DO: check 4 staff, if already exists in school, via staffNo
+
+
+
+
+           // add the user who created the school to :the school as admin
+           $school->users()->syncWithoutDetaching($user->id);
+           $staff = Staff::create(['user_id'=>$user->id, 'school_id'=>$school->id, 'staff_no' => $request->staffNo ?? 'SCH:NAME_RANDOM_5']);
+           // make user admin in school created
+           $user->schools()->updateExistingPivot($school->id, ['staff_id'=>$staff->id, 'choosen_role'=> 'staff','school_user_roles'=> json_encode(['staff'])]);
+
+           // update the choosen_school_id
+           $user->choosen_school_id = $school->id;
+           $user->save();
+
+           return response()->json([
+               'status' => true,
+               'user' => $user,
+               'schools' => $user->schools,
+
+
+               'message' => 'School registered successfully',
+               'token' => $user->createToken("API TOKEN")->plainTextToken,
+           ], 200);
+         }catch (\Throwable $th) {
+             return response()->json([
+                 'status' => false,
+                 'message' => $th->getMessage()
+             ], 500);
+         }
+
+
+     }
      public function registerSchool(Request $request)
      {
          try{
@@ -88,7 +144,7 @@ class SchoolController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Template retrieved succesfully!',
+            'message' => 'User schools retrieved succesfully!',
             'data' => $results,
 
         ], 200);
@@ -101,6 +157,19 @@ class SchoolController extends Controller
         $school = School::find($id);
         $school->users()->syncWithoutDetaching($request->userId);
         return ['message'=>'This user was successfully added to the school'];
+
+    }
+    public function allSchools(Request $request)
+    {
+        $perPage = $request->limit ? $request->limit : 4;
+
+        $results = School::paginate($perPage);
+        return response()->json([
+            'status' => true,
+            'message' => 'Existing schools retrieved succesfully!',
+            'data' => $results,
+
+        ], 200);
 
     }
 

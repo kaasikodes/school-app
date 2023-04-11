@@ -41,6 +41,57 @@ class CourseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+     public function assignStaffToLevelCoursesForSession(Request $request, $levelId, $sessionId)
+     {
+        // TO DO: middleware to ensure requests only affect the school concerned by checking for header schoolId, and wether user has access to school, as well as other checks
+         $level = Level::find($levelId);
+         if(!$level){
+           return response()->json([
+               'status' => false,
+               'message' => "Level doesn't exist",
+               'data' => null,
+
+
+
+           ], 404);
+         }
+         
+
+         $staffCourseIds = $request->staffCourseIds;
+        //  return [ $staffCourseIds[0]['staffId'], $staffCourseIds];
+         $staffIds = [];
+    
+
+   
+         foreach ( $staffCourseIds as $entry) {
+           CourseTeacherRecord::updateOrCreate([ 'course_id' => $entry['courseId'],'level_id' => $levelId, 'school_session_id' => $sessionId], ['staff_id'=> $entry['staffId']]);
+           array_push($staffIds, [
+                $entry['staffId']
+            ]);
+
+         
+        }
+        
+
+  
+
+         $recordCount = count( $staffCourseIds);
+         $concernedStaff = Staff::whereIn('id', $staffIds)->get();
+            // TO DO : Try /Catch to sure proper err message for mailtrap
+         foreach ($concernedStaff as $staff) {
+           $staff->user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/", "You have been assigned to teach a course(s) in $level->name.", "You have been assigned to teach course(s) $level->name to manage", "Courses: name_of_course(s) ")));
+         }
+
+
+         return response()->json([
+             'status' => true,
+             'message' => "$recordCount staff have been succesfully assigned to teach $recordCount  courses in $level->name !",
+             'data' => null,
+
+
+
+         ], 200);
+     }
      public function assignStaffToHandleCourseInClassesForASession(Request $request)
      {
          $school = School::find($request->schoolId);

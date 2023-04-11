@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LevelsController;
+
+use App\Http\Controllers\LevelController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StudentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,15 +23,15 @@ Route::get('/', function () {
 });
 Route::get('/departments/bulk-template', [DepartmentController::class, 'exportBulkUpload']);
 
+Route::get('/student/academic-result', [StudentController::class, 'studentAcademicResultView']);
 
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified'
 ])->group(function () {
-    Route::get('/classes', [LevelsController::class, 'index'])->name('levels.index');
-    Route::get('/score/{id}', [DashboardController::class, 'create'])->name('score.create');
-    Route::post('/score', [DashboardController::class, 'store'])->name('score.store');
+    Route::get('/classes', [LevelController::class, 'index'])->name('levels.index');
+   
 });
 
-Route::get('/classes', [LevelsController::class, 'index'])->name('levels.index');
+Route::get('/classes', [LevelController::class, 'index'])->name('levels.index');

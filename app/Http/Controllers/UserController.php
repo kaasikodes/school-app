@@ -131,6 +131,34 @@ class UserController extends Controller
 
         ], 200);
     }
+    public function getUserByEmail(Request $request)
+    {
+        //TO DO use a token middleware guard to guard this controller
+        // e.g check wether this token exists in the requests sent
+        // tokens can be stored in DB with no expiry date or hardcoded
+
+        $user =  User::where('email', $request->email)->first();
+        if(!$user){
+            return response()->json([
+                'status' => false,
+                'message' => 'This user does not exist in application!',
+                'user' => null,
+                'schools' => null,
+    
+    
+            ], 404);
+
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'The user has been retrieved successfully!',
+            'user' => $user,
+            'schools' => $user->schools,
+
+
+        ], 200);
+    }
 
     /**
      * Show the form for editing the specified resource.

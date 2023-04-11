@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Level;
 use App\Models\ClassTeacherRecord;
 use App\Http\Resources\LevelResource;
+use App\Http\Resources\ClassTeacherRecordResource;
 use App\Exports\LevelsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -28,23 +29,25 @@ class LevelController extends Controller
          $records = [];
 
          foreach ($classStaffIds as $entry) {
-           array_push($records, [
-               'school_session_id' => $currentSessionId,
-               'level_id'=>$entry['levelId'],
-               'staff_id'=>$entry['staffId'],
-               'created_at'=>date('Y-m-d H:i:s'),
-               'updated_at'=>date('Y-m-d H:i:s'),
+            //    array_push($records, [
+            //        'school_session_id' => $currentSessionId,
+            //        'level_id'=>$entry['levelId'],
+            //        'staff_id'=>$entry['staffId'],
+            //        'created_at'=>date('Y-m-d H:i:s'),
+            //        'updated_at'=>date('Y-m-d H:i:s'),
 
 
-           ]);
+            //    ]);
            // code...
+           ClassTeacherRecord::updateOrCreate(['school_session_id' => $currentSessionId,'level_id'=>$entry['levelId']], ['staff_id'=>$entry['staffId']]);
          }
 
-        ClassTeacherRecord::insert($records);
+        // ClassTeacherRecord::insert($records);
 
 
 
-         $recordCount = count($records);
+        //  $recordCount = count($records);
+         $recordCount = count($classStaffIds);
 
          // foreach ($staff as $staff) {
          //   $staff->user->notify((new NotifyUser(env('APP_FRONTEND_URL')."/", "You have been assigned to teach $course->name in  $classCount classes.", "You have been assigned $course->name to manage", "Classes: $levelsAsStr")));
@@ -61,15 +64,26 @@ class LevelController extends Controller
          ], 200);
          // return new StaffResource($staff);
      }
+    public function classTeacherRecordsPerSession(Request $request, $sessionId)
+    {
+        // PLease use resoURCES
+        $perPage = $request->limit ? $request->limit : 4;
+
+        $results = ClassTeacherRecord::with(['staff.user', 'level'])->where('school_session_id',$sessionId)->paginate($perPage);
+       
+
+        return ClassTeacherRecordResource::collection($results);
+    }
     public function index(Request $request, $id)
     {
         // PLease use resoURCES
         $perPage = $request->limit ? $request->limit : 4;
 
-        $results = Level::with('courses')->where('school_id',$id)->paginate($perPage);
+        $results = Level::with(['courses','classSessionTeachers' => fn($query) => $query->with(['staff' => fn($q) => $q->with('user')])])->where('school_id',$id)->paginate($perPage);
+    
         if($request->searchTerm){
 
-            $results = Level::with('courses')->where('school_id',$id)->whereLike(['name'], $request->searchTerm)->paginate($perPage);
+            $results = Level::with(['courses','classSessionTeachers' => fn($query) => $query->with(['staff' => fn($q) => $q->with('user')])])->where('school_id',$id)->whereLike(['name'], $request->searchTerm)->paginate($perPage);
         }
 
         return LevelResource::collection($results);
@@ -165,10 +179,14 @@ class LevelController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    
+    public function show(Request $request, $id)
     {
-        //
-        $level =Level::find($id);
+        $sessionId = $request->sessionId;
+        $level =Level::with(['courses'] )->find($id);
+        if($sessionId ){
+            $level =Level::with(['courses.courseTeacherRecords' => fn($q) => $q->where('school_session_id', $sessionId)->where('level_id', $id)->with('staff.user')->get()] )->find($id);
+        }
         if($level ===  null){
             return response()->json([
                 'status' => false,

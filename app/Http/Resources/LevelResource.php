@@ -28,6 +28,6 @@ class LevelResource extends JsonResource
 
         }
 
-        return ['data' => parent::toArray($request), 'courseCount'=> $this->courses->count(), 'author'=>null ];
+        return ['data' => parent::toArray($request), 'courseCount'=> $this->courses->count(), 'author'=>null];
     }
 }

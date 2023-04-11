@@ -45,7 +45,7 @@ class Course extends Model
     }
     public function courseTeacherRecords()
     {
-        return $this->hasMany(CourseTeacherRecord::class);
+        return $this->hasMany(CourseTeacherRecord::class, 'course_id');
     }
 
     public function participants()
