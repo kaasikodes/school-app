@@ -4,7 +4,7 @@
     <title>{{ $title }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-		table {
+		.result table {
 			border-collapse: collapse;
 			width: 100%;
 			margin-bottom: 20px;
@@ -12,40 +12,135 @@
 			font-size: 10px;
 			text-align: left;
 		}
-		th, td {
+		.result th, .result td {
 			padding: 8px;
 			border: 1px solid #ddd;
 		}
-		th {
+		.result th {
 			background-color: #f2f2f2;
 			font-weight: bold;
 		}
-		tr:nth-child(even) {
+		.result tr:nth-child(even) {
 			background-color: #f2f2f2;
 		}
-        header{
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            background: red;
+        .header, .student-info {
+           
+            margin-bottom: 30px;
+        }
+        .header table {
+           
+            width: 100%;
+        }
+        .header table h3 {
+           
+            font-size: 30px;
+            font-weight: 400;
+            margin: 5px;
+            text-transform: uppercase;
+        }
+        .header table h6 {
+           
+            font-size: 18px;
+            font-weight: 400;
+            margin: 0px;
+            text-transform: uppercase;  
+        }
+      
+        .student-info table{
+            width: 100%;
+            font-size: 12px;
+
+
+        }
+        .student-info table th {
+            text-align: left;
+            text-transform: capitalize;  
+
+
+
+
         }
 	</style>
 </head>
 <body>
-    <p>{{ $description }}</p>
-    <img alt='test' src='https://cdn.dribbble.com/users/1615584/avatars/normal/657733f5cf034c8778c3e07d4c9e4c4e.jpg?1488390406&compress=1&resize=80x80'/>
-
-    <br>
+    
     <div>
-        <header>
+        <div class='header'>
+            <table>
+            <thead>
+            <tr>
+            <th>
             <img src="https://ui-avatars.com/api/?name=C+E+I&color=7F9CF5&background=EBF4FF" alt=""/>
+
+            </th>
+            <th>
             <div>
                 <h3>{{$school->name}}</h3>
+                <h6>{{$title}}</h6>
             </div>
-            <img src="https://ui-avatars.com/api/?name=C+E+I&color=7F9CF5&background=EBF4FF" alt=""/>
-        </header>
+            </th>
+            <th>
+                <img src="https://ui-avatars.com/api/?name=C+E+I&color=7F9CF5&background=EBF4FF" alt=""/>
 
-        <div>
+            </th>
+
+
+
+
+            </tr>                            
+            </thead>
+            </table>
+        </div>
+
+        <div class="student-info">
+            
+           
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <table>
+                                <tbody>
+                                    @foreach($leftItems as $key => $value)
+                                    <tr>
+                                        <th>
+                                            {{$key}}:
+                                        </th>
+                                        <td>
+                                            {{$value}}
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </td>
+                        <td>
+                            <table>
+                                <tbody>
+                                    @foreach($rightItems as $key => $value)
+                                    <tr>
+                                        <th>
+                                            {{$key}}:
+                                        </th>
+                                        <td>
+                                            {{$value}}
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </td>
+                       
+                      
+                    </tr>
+                </tbody>
+            </table>
+
+
+        </div>
+        
+
+        <div class = 'result'>
             <table>
             <thead>
                 <tr>

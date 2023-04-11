@@ -68,21 +68,79 @@ class StudentController extends Controller
         $sessionId= $request->sessionId;
         $levelId= $request->levelId;
         $schoolId= $request->schoolId;
+        if(!$studentId | !$sessionId | !$levelId | !$schoolId){
+            return response()->json([
+                'status' => false,
+                'message' => 'Incomplete Parameters',
+            ], 400);
+        }
         $school = School::find($schoolId);
+        $level = Level::find($levelId);
         $student = Student::find($studentId);
+        if(!$school){
+            return response()->json([
+                'status' => false,
+                'message' => 'School not found',
+            ], 400);
+        }
+        if(!$level){
+            return response()->json([
+                'status' => false,
+                'message' => 'Class not found',
+            ], 400);
+        }
+        if(!$student){
+            return response()->json([
+                'status' => false,
+                'message' => 'Student not found',
+            ], 400);
+        }
         $setting = SchoolSessionSetting::where('session_id', $sessionId)->where('school_id', $schoolId)->first();
+        if(!$setting){
+            return response()->json([
+                'status' => false,
+                'message' => 'School has not set not completed setup',
+            ], 400);
+        }
         // TO DO: check to see wether is custodian or student or admin or staff-classteacher if not throw err
         // TO DO: throw err if the required params are not provided
         $courses = CourseParticipantRecord::with(['course', 'level'])->where('school_session_id',$sessionId)->where('student_id',$studentId)->where('level_id',$levelId)->get();
+        $levelStudentCount = count(CourseParticipantRecord::where('school_session_id',$sessionId)->where('level_id',$levelId)->get()->unique('student_id')->values()->all());
+        $classParticipants = CourseParticipantRecord::where('school_session_id',$sessionId)->where('level_id',$levelId)->get()->groupBy(['level_id', 'student_id']);
+        $totalOfSelectedStudent = $courses->sum('total');
+        $averageOfSelectedStudent = $courses->avg('total');
+        $totalOfEachStudent = [];
+        $avgOfEachStudent = [];
+        $studentsInClass = $classParticipants->all()[$levelId];
+        foreach ($studentsInClass as $key => $value) {
+            $total = $value->sum('total');
+            $avg = $value->avg('total');
+            
+            array_push($totalOfEachStudent, $total);
+            array_push($avgOfEachStudent, $avg);
+        }
+        $avgOfEachStudentRanked = collect($avgOfEachStudent)->sortDesc()->unique(); //unique so position is determined
+        $avgOfEachStudentRanked = $avgOfEachStudentRanked->values()->all(); //unique so position is determined
+        $position = 0;
+        foreach ($avgOfEachStudentRanked as $key => $value) {
+            if($value === $averageOfSelectedStudent){
+                $position = $key + 1;
+                break;
+            }
+        }
+        $classAverage = collect($avgOfEachStudent); //done so avg can be calculated properly with repeated values
+        $classAverage = $classAverage->avg();
 
         $data = [
+            'leftItems'=> ['Student ID' => $student->id_number, 'Class' => $level->name, 'Gender' => $student->user->gender, 'No in Class'=> $levelStudentCount, 'session'=>$setting->session_id->name],
+            'rightItems'=> ['Student Name' => $student->user->name, 'position'=>$position, 'Total Score'=> $totalOfSelectedStudent, 'Student Average'=>$averageOfSelectedStudent, 'Class Average'=>$classAverage],
             'student'=>$student,
             'school'=>$school,
             'setting'=>$setting,
             'courses'=> $courses,
             'title' => 'Academic Progress Report',
             'description' => 'This is an example Laravel pdf tutorial.',
-            'footer' => 'by <a href="https://codeanddeploy.com">codeanddeploy.com</a>'
+            'footer' => 'by <a href="https://isaac-odeh-portfolio.netlify.app/">Isaac Odeh</a>'
         ];
         $pdf = PDF::loadView('student.result', $data);
         return $pdf->stream('resume.pdf');
