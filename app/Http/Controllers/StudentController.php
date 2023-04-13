@@ -143,9 +143,10 @@ class StudentController extends Controller
             'footer' => 'by <a href="https://isaac-odeh-portfolio.netlify.app/">Isaac Odeh</a>'
         ];
         $pdf = PDF::loadView('student.result', $data);
-        return $pdf->stream('resume.pdf');
+        // return $pdf->stream('result.pdf');
+        $fileName = $student->user->name."_result.pdf";
 
-        // return $pdf->download('sample.pdf');
+        return $pdf->download($fileName);
     
     }
     public function singleStudent(Request $request, $schoolId, $studentId)
