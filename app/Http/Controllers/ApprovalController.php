@@ -64,6 +64,22 @@ class ApprovalController extends Controller
 
         ], 200);
     }
+    public function approveOrReject(Request $request, $id)
+    {
+       
+        $data = Approval::find($id);
+        $data->update(['status' => $request->status]);
+        $data->requisition()->update(['status' => $request->status]);
+
+        return response()->json([
+            'status' => true,
+            'message' => "Requisition has been $request->status successfully!",
+            'data' => $data,
+
+
+
+        ], 200);
+    }
 
 
 

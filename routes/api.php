@@ -102,6 +102,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // approvals
     Route::get('/approvals/{schoolId}/', [ApprovalController::class, 'index']);
     Route::get('/single-approval/{id}/', [ApprovalController::class, 'show']);
+    Route::post('/approve-or-reject/{id}/', [ApprovalController::class, 'approveOrReject']);
 
 
 
