@@ -15,6 +15,9 @@ use App\Http\Controllers\CustodianController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\InvitesController;
+use App\Http\Controllers\RequisitionController;
+use App\Http\Controllers\ApprovalController;
+
 
 
 /*
@@ -92,6 +95,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::patch('/sessions/{id}/end-session', [SchoolSessionController::class, 'endSession']);
     Route::get('/schools/{id}/sessions', [SchoolSessionController::class, 'index']);
 
+    // requisitions
+    Route::get('/requisitions/{schoolId}/', [RequisitionController::class, 'index']);
+    Route::get('/single-requisition/{id}/', [RequisitionController::class, 'show']);
+
+    // approvals
+    Route::get('/approvals/{schoolId}/', [ApprovalController::class, 'index']);
+    Route::get('/single-approval/{id}/', [ApprovalController::class, 'show']);
+    Route::post('/approve-or-reject/{id}/', [ApprovalController::class, 'approveOrReject']);
+
+
 
     // departments
     // create or update
@@ -123,6 +136,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     //courses
     Route::post('/courses/save', [CourseController::class, 'store']);
+    Route::post('/courses/submitAssessmentForCompilation', [CourseController::class, 'submitAssessmentForCompilation']);
     Route::patch('/courses/{courseId}/update', [CourseController::class, 'update']);
     Route::post('/courses/add-bulk', [CourseController::class, 'addCoursesInBulk']);
     Route::get('/schools/{id}/courses', [CourseController::class, 'index']);
