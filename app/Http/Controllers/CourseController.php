@@ -18,6 +18,9 @@ use App\Models\CourseAssessmentSection;
 use App\Models\CourseAssessmentQuestionOption;
 use App\Models\CourseAssessmentQuestionAnswer;
 use App\Models\CourseLevel;
+use App\Models\ClassTeacherRecord;
+use App\Models\Requisition;
+use App\Models\Approval;
 use App\Models\CourseAssessmentQuestionCorrectAnswer;
 use App\Http\Resources\CourseResource;
 use App\Http\Resources\LevelResource;
@@ -41,6 +44,23 @@ class CourseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+     public function submitAssessmentForCompilation(Request $request)
+     {
+        // TO DO : Check wether user can perform this action as well as validation for missing params
+        $levelTeacher = ClassTeacherRecord::where(['level_id'=>$request->levelId,'school_session_id'=>$request->sessionId])->first();
+        $course = Course::find($request->courseId);
+        $level = Level::find($request->levelId);
+        $approver = $levelTeacher->staff->user;
+
+        $approver_id = $approver->id;
+        $title = "$course->name course result compilation";
+        $requisition = Requisition::create(['title'=>$title,'course_id'=>$request->courseId, 'level_id'=>$request->levelId, 'type'=>"course_result_compilation",'content'=>$request->comment, 'session_id'=>$request->sessionId, 'school_id'=>$request->schoolId, 'requester_id'=>auth()->user()->id, 'requested_as'=>'course_teacher', 'current_approver_id'=>$approver_id]);
+        // notify the approver of what needs to be done
+        $approval = Approval::create(['requisition_id'=>$requisition->id,'approver_id'=>$approver_id]);
+        
+        $approver->notify((new NotifyUser(env('APP_FRONTEND_URL')."/approvals?id=$approval->id", "You need to approve $course->name assessment is ready for compilation", "$level->name $course->name continuous assessment approval", "Comment: $request->comment")));
+        // TO DO : The Approval id will be used to pop up modal with approval info so user can approve/reject
+     }
      public function assignStaffToLevelCoursesForSession(Request $request, $levelId, $sessionId)
      {
         // TO DO: middleware to ensure requests only affect the school concerned by checking for header schoolId, and wether user has access to school, as well as other checks

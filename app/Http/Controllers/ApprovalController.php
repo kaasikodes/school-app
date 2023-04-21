@@ -68,9 +68,14 @@ class ApprovalController extends Controller
     {
        
         $data = Approval::find($id);
+<<<<<<< HEAD
         $data->update(['status' => $request->status, 'comment' => $request->comment]);
         $data->requisition()->update(['status' => $request->status]);
         // TO DO : check the type of requisition, and update associated table appropiately
+=======
+        $data->update(['status' => $request->status]);
+        $data->requisition()->update(['status' => $request->status]);
+>>>>>>> 14d9a236acec14779e823c8320d02a9c1a599886
 
         return response()->json([
             'status' => true,
