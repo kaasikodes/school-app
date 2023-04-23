@@ -178,6 +178,22 @@ class SchoolController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function updateLogo(Request $request, $id)
+    {
+        //
+        $school =  School::find($id);
+        $school->logo = $request->photo;
+        $school->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'The school logo has been updated successfully!',
+            'school' => $school,
+            'photo' => $request->photo,
+
+
+        ], 200);
+    }
     public function create()
     {
         //

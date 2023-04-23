@@ -65,10 +65,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/users/{id}/update-choosenSchool', [UserController::class, 'updateChoosenSchoolId']);
     Route::post('/users/{id}/update-user_rolein-school', [UserController::class, 'updateUserChoosenRoleInSchool']);
     Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::patch('/users/{id}/updateProfilePhoto', [UserController::class, 'updateProfilePhoto']);
 
 
     // schools
     // create or update
+    Route::patch('/schools/{id}/updateLogo', [SchoolController::class, 'updateLogo']);
+
     Route::post('/schools/save', [SchoolController::class, 'store']);
     Route::get('/schools', [SchoolController::class, 'index']);
     Route::get('/schools/{id}', [SchoolController::class, 'show']);
@@ -98,6 +101,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // requisitions
     Route::get('/requisitions/{schoolId}/', [RequisitionController::class, 'index']);
     Route::get('/single-requisition/{id}/', [RequisitionController::class, 'show']);
+    Route::post('/requisitions/create', [RequisitionController::class, 'store']);
 
     // approvals
     Route::get('/approvals/{schoolId}/', [ApprovalController::class, 'index']);
