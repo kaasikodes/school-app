@@ -40,6 +40,31 @@ class RequisitionController extends Controller
     }
     
 
+    public function getRequisitionByParams(Request $request)
+    {
+       
+        $data = Requisition::with(['requester','currentApprover'])->where(['level_id'=>$request->levelId, 'course_id'=> $request->courseId, 'session_id'=>$request->sessionId, 'type'=> $request->type])->first();
+        if(!$data){
+            return response()->json([
+                'status' => true,
+                'message' => "Requisition does not exist",
+                'data' => $data,
+    
+    
+    
+            ], 200);
+
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Requisition retrieved successfully",
+            'data' => $data,
+
+
+
+        ], 200);
+    }
     public function show(Request $request, $id)
     {
        

@@ -101,6 +101,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // requisitions
     Route::get('/requisitions/{schoolId}/', [RequisitionController::class, 'index']);
     Route::get('/single-requisition/{id}/', [RequisitionController::class, 'show']);
+    Route::get('/single-requisition-by-params', [RequisitionController::class, 'getRequisitionByParams']);
     Route::post('/requisitions/create', [RequisitionController::class, 'store']);
 
     // approvals
