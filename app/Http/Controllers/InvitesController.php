@@ -54,7 +54,7 @@ class InvitesController extends Controller
         // TO DO: If user exists, and has an active session use a different url to avoid auth redirect
 
         // notify person
-        $invitation->notify((new NotifyUser($redirectUrl, "Congratulations! You have been invited to be a $request->userType at $school->name", "$school->name invitation", "Invitation Code: $code")));
+        $invitation->notify((new NotifyUser($redirectUrl, "Congratulations! You have been invited to be a $request->userType at $school->name", "$school->name invitation", "Invitation Code: $code", $schoolId)));
 
         return response()->json([
             'status' => true,

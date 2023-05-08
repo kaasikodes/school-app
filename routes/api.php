@@ -97,6 +97,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/sessions/{id}', [SchoolSessionController::class, 'show']);
     Route::patch('/sessions/{id}/end-session', [SchoolSessionController::class, 'endSession']);
     Route::get('/schools/{id}/sessions', [SchoolSessionController::class, 'index']);
+    Route::get('/sessions/{id}/task-completion', [SchoolSessionController::class, 'schoolSessionTaskCompletion']);
+    Route::post('/sessions/{id}/issue-result', [SchoolSessionController::class, 'issueSessionResult']);
+    Route::post('/sessions/{id}/end-session', [SchoolSessionController::class, 'endSession']);
 
     // requisitions
     Route::get('/requisitions/{schoolId}/', [RequisitionController::class, 'index']);
@@ -194,6 +197,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/staff/add-bulk', [StaffController::class, 'addStaffInBulk']);
     Route::get('/schools/{id}/staff', [StaffController::class, 'index']);
     Route::get('/schools/{schoolId}/staff/{staffId}/course-teacher-records', [StaffController::class, 'singleStaffCourseTeacherRecords']);
+    Route::get('/schools/{schoolId}/staff/{staffId}/single-course-teacher-record', [StaffController::class, 'singleStaffSingleCourseTeacherRecord']);
 
     // Route::get('/schools/staff/{staffId}', [StaffController::class, 'singleStaff']);
     Route::get('/staff/{staffId}', [StaffController::class, 'show']);

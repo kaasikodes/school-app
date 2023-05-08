@@ -10,6 +10,7 @@ use App\Models\Staff;
 use App\Models\SchoolSession;
 use App\Models\SchoolCourseRecordTemplate;
 use App\Models\SchoolSessionSetting;
+use App\Traits\BaseUserTrait;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Hash;
 
 class SchoolController extends Controller
 {
+    use BaseUserTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -151,14 +154,7 @@ class SchoolController extends Controller
     }
 
 
-    public function addUserToSchool(Request $request, $id)
-    {
-        // return 'works';
-        $school = School::find($id);
-        $school->users()->syncWithoutDetaching($request->userId);
-        return ['message'=>'This user was successfully added to the school'];
-
-    }
+  
     public function allSchools(Request $request)
     {
         $perPage = $request->limit ? $request->limit : 4;
@@ -210,12 +206,13 @@ class SchoolController extends Controller
         //
         //validate the request
         // create the school
-        $school = School::updateOrCreate(['id'=> $request->id],[ 'name' => $request->name, 'description'=> $request->description, 'studentLimit'=> $request->studentLimit, 'staffLimit'=> $request->staffLimit]);
+        $school = School::updateOrCreate(['id'=> $request->id],[ 'name' => $request->name, 'description'=> $request->description, 'email'=>auth()->user()->email, 'phone'=>auth()->user()->phone]);
 
-        // add the user who created the school to :the school as admin
-        $school->users()->syncWithoutDetaching(auth()->user()->id);
-        // make user admin in school created
-        auth()->user()->schools()->updateExistingPivot($school->id, ['choosen_role'=> 'admin','school_user_roles'=> json_encode(['admin','staff'])]);
+        $session = SchoolSession::create(['name'=>'First Session', 'school_id' => $school->id, 'description'=>'This is the first academic session in your school', 'starts'=>date("Y-m-d", time())]);
+        $school->current_session_id = $session->id;
+        $school->save();
+
+        $this->addUserToSchool(auth()->user()->id, $school->id, 'admin',['admin']);
 
 
         return ['result'=>$school, 'schools'=>auth()->user()->schools];
