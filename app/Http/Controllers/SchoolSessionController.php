@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SchoolSession;
+use App\Models\School;
+use App\Models\ClassTeacherRecord;
+use App\Models\CourseTeacherRecord;
+use App\Models\CourseParticipantRecord;
 
 
 class SchoolSessionController extends Controller
@@ -20,11 +24,151 @@ class SchoolSessionController extends Controller
 
         $results = SchoolSession::where('school_id',$id)->paginate($perPage);
         if($request->searchTerm){
-            $results = SchoolSession::where('school_id',$id)->whereLike(['name','ends','starts',], $request->searchTerm)->paginate($perPage);
+            $results = SchoolSession::where('school_id',$id)->whereLike(['name','ends','starts'], $request->searchTerm)->paginate($perPage);
         }
 
         return $results;
     }
+    public function endSession($id)
+    {
+        $session= SchoolSession::find($id);
+        
+        if($session->result_issued !== 'YES'){
+            return response()->json([
+                'status' => false,
+                'message' => "Session result is yet to be issued",
+                'data' => $session
+               
+              
+    
+            ], 400);
+
+        }
+        $session->ends = date('Y-m-d H:i:s');
+        $session->ended_at = date('Y-m-d H:i:s');
+        $session->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Session has been closed successfully!',
+            'data' => $session,
+        ], 200);
+
+
+    }
+    public function issueSessionResult($id)
+    {
+        $session= SchoolSession::find($id);
+        $courseTeachersInViolation = CourseTeacherRecord::where(['school_session_id'=> $session->id, 'submitted_assessment_for_compilation' => 'NO'])->get();
+        $courseTeachersInViolationCount = $courseTeachersInViolation->count();
+        if($courseTeachersInViolationCount > 0){
+            return response()->json([
+                'status' => false,
+                'message' => "$courseTeachersInViolationCount course teachers are yet to submit assessments for compilation!",
+                'data' => ['courseTeachersInViolation'=>$courseTeachersInViolation]
+               
+              
+    
+            ], 400);
+
+        }
+        $session->result_issued = 'YES';
+        $session->result_issued_at = date('Y-m-d H:i:s');
+        $session->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Result successfully issued for session!',
+            'data' => $session,
+        ], 200);
+
+
+    }
+    
+    public function schoolSessionTaskCompletion($id)
+    {
+        
+        //
+
+        $session= SchoolSession::find($id);
+        $school = School::find($session->school_id);
+        $classTeachers = ClassTeacherRecord::where('school_session_id', $session->id)->get();
+        $courseTeachers = CourseTeacherRecord::where('school_session_id', $session->id)->get();
+        $courseParticipantsWithAssessment = CourseParticipantRecord::where('school_session_id', $session->id)->whereNotNull('break_down')->get();
+        $courseTeachersWhoHaveSumbittedForReview = CourseTeacherRecord::where(['school_session_id'=> $session->id, 'submitted_assessment_for_compilation'=> 'YES'])->get();
+
+        $status = 0;
+        if($session){
+            $status = 0;
+        }
+        if($school && $school->departments->count() >= 1){
+
+            $status = 1;
+            
+        }
+        if($school && $school->levels->count() >= 1){
+
+            $status = 2;
+            
+        }
+        if($school && $school->courses->count() >= 1){
+
+            $status = 3;
+            
+        }
+        if($school && $school->staff->count() >= 1){
+
+            $status = 4;
+            
+        }
+        if($school && $classTeachers->count() >= 1){
+
+            $status = 5;
+            
+        }
+        if($school && $courseTeachers->count() >= 1){
+
+            $status = 6;
+            
+        }
+        if($school && $school->students->count() >= 1){
+
+            $status = 7;
+            
+        }
+        if($school && $courseParticipantsWithAssessment->count() >= 1){
+
+            $status = 8;
+            
+        }
+        if($school && $courseTeachersWhoHaveSumbittedForReview->count() >= 1){
+
+            $status = 9;
+            
+        }
+        if($school && $session->result_issued === 'YES'){
+
+            $status = 10;
+            
+        }
+        if($school && $session->ended_at){
+
+            $status = 11;
+            
+        }
+
+       
+
+        return response()->json([
+            'status' => true,
+            'message' => 'School Session Task Completion returned!',
+            'data' => ['status'=> $status, 'sessionId' => $session->id],
+           
+          
+
+        ], 200);
+    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -149,32 +293,7 @@ class SchoolSessionController extends Controller
 
         ], 200);
     }
-    public function endSession(Request $request, $id){
-        $session =SchoolSession::find($id);
-        if($session ===  null){
-            return response()->json([
-                'status' => false,
-                'message' => 'School session doesn\'t exist.',
-                'data' => null,
-               
-              
-    
-            ], 400);
-
-        }
-        $session->ends = $request->ends;
-        $session->save();
-        return response()->json([
-            'status' => true,
-            'message' => 'School has ended successfully',
-            'data' => $session,
-           
-          
-
-        ], 200);
-
-
-    }
+   
 
 
     /**

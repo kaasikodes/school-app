@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\DatabaseMessage;
 
 class NotifyUser extends Notification implements ShouldQueue
 {
@@ -35,7 +36,7 @@ class NotifyUser extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -65,5 +66,16 @@ class NotifyUser extends Notification implements ShouldQueue
         return [
             //
         ];
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return new DatabaseMessage([
+            'subject'=>$this->subject,
+            'message' => $this->message,
+            'passwordText' => $this->passwordText,
+            'action' => url($this->actionUrl),
+            
+            ]);
     }
 }

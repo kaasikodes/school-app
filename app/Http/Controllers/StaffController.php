@@ -121,6 +121,21 @@ class StaffController extends Controller
         return CourseTeacherRecordResource::collection($results);
 
     }
+    public function singleStaffSingleCourseTeacherRecord(Request $request, $schoolId, $staffId)
+    {
+        
+
+        $result = CourseTeacherRecord::where(['staff_id'=>$staffId,'school_session_id'=>$request->sessionId, 'level_id'=>$request->levelId, 'course_id'=>$request->courseId, 'staff_id'=>$request->staffId])->first();
+        return response()->json([
+            'status' => true,
+            'message' => 'Course Teacher Record retrieved succesfully!',
+            'data' => $result,
+ 
+ 
+ 
+        ], 200);
+
+    }
 
     /**
      * Show the form for creating a new resource.

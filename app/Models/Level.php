@@ -8,6 +8,7 @@ use App\Models\LevelTeacher;
 use App\Models\ClassTeacherRecord;
 use App\Models\Course;
 use App\Models\User;
+use App\Models\Requisition;
 
 
 class Level extends Model
@@ -33,6 +34,12 @@ class Level extends Model
     public function classSessionTeachers()
     {
         return $this->hasMany(ClassTeacherRecord::class, 'level_id');
+    }
+
+    // assessment approvals
+    public function sessionAssessmentApprovals()
+    {
+        return [];
     }
     
 }

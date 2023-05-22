@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('can_record')->default(0);
             $table->unsignedTinyInteger('can_create_assessment')->default(0);
             $table->unsignedTinyInteger('can_add_remove_course_participant')->default(0);
+            $table->enum('submitted_assessment_for_compilation', ['YES', 'NO'])->default('NO');
             $table->unsignedBigInteger('course_id');
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('school_session_id');
