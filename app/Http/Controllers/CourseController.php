@@ -46,20 +46,30 @@ class CourseController extends Controller
      */
      public function submitAssessmentForCompilation(Request $request)
      {
-        // TO DO : Check wether user can perform this action as well as validation for missing params
-        $levelTeacher = ClassTeacherRecord::where(['level_id'=>$request->levelId,'school_session_id'=>$request->sessionId])->first();
-        $course = Course::find($request->courseId);
-        $level = Level::find($request->levelId);
-        $approver = $levelTeacher->staff->user;
+        $courseTeacherRecord = CourseTeacherRecord::where(['level_id'=>$request->levelId, 'school_session_id'=>$request->sessionId, 'course_id'=>$request->courseId, 'staff_id'=>$request->staffId])->first();
+        if(!$courseTeacherRecord){
+            return response()->json([
+                'status' => true,
+                'message' => 'Course Teacher does not exist!',
+                'data' => $courseTeacherRecord,
+               
+              
+    
+            ], 400);
 
-        $approver_id = $approver->id;
-        $title = "$course->name course result compilation";
-        $requisition = Requisition::create(['title'=>$title,'course_id'=>$request->courseId, 'level_id'=>$request->levelId, 'type'=>"course_result_compilation",'content'=>$request->comment, 'session_id'=>$request->sessionId, 'school_id'=>$request->schoolId, 'requester_id'=>auth()->user()->id, 'requested_as'=>'course_teacher', 'current_approver_id'=>$approver_id]);
-        // notify the approver of what needs to be done
-        $approval = Approval::create(['requisition_id'=>$requisition->id,'approver_id'=>$approver_id]);
-        
-        $approver->notify((new NotifyUser(env('APP_FRONTEND_URL')."/approvals?id=$approval->id", "You need to approve $course->name assessment is ready for compilation", "$level->name $course->name continuous assessment approval", "Comment: $request->comment")));
-        // TO DO : The Approval id will be used to pop up modal with approval info so user can approve/reject
+        }
+        $courseTeacherRecord->submitted_assessment_for_compilation = 'YES';
+        $courseTeacherRecord->save();
+        // TO DO: notify class teacher and admin that class teacher has submitted assessment for compilation
+        return response()->json([
+            'status' => true,
+            'message' => 'Course Assessment has been successfully submitted for compilation!',
+            'data' => $courseTeacherRecord,
+           
+          
+
+        ], 200);
+      
      }
      public function assignStaffToLevelCoursesForSession(Request $request, $levelId, $sessionId)
      {

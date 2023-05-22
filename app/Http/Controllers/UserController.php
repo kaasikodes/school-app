@@ -117,6 +117,22 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function updateProfilePhoto(Request $request, $id)
+    {
+        //
+        $user =  User::find($id);
+        $user->profile_photo_path = $request->photo;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'The user profile photo has been updated successfully!',
+            'user' => $user,
+            'photo' => $request->photo,
+
+
+        ], 200);
+    }
     public function show($id)
     {
         //

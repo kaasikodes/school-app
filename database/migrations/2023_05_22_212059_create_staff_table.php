@@ -18,9 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->text('alt_name')->nullable();
             $table->boolean('isActive')->default(true);
-            $table->string('staff_no')->nullable()->unique();
+            $table->string('staff_no')->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('school_id');
+
+            $table->unique(['staff_no', 'school_id'], 'staff_staff_no_unique');
         });
     }
 

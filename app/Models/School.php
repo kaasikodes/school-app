@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\PaymentCategory;
 use App\Models\LevelSchoolFee;
+use App\Models\Department;
+use App\Models\Level;
+use App\Models\Course;
+use App\Models\Staff;
+use App\Models\Student;
 
 
 class School extends Model
@@ -26,6 +31,26 @@ class School extends Model
     public function sessions()
     {
         return $this->hasMany(SchoolSession::class);
+    }
+    public function departments()
+    {
+        return $this->hasMany(Department::class);
+    }
+    public function levels()
+    {
+        return $this->hasMany(Level::class);
+    }
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
+    }
+    public function staff()
+    {
+        return $this->hasMany(Staff::class);
+    }
+    public function students()
+    {
+        return $this->hasMany(Student::class);
     }
     public function paymentCategories()
     {

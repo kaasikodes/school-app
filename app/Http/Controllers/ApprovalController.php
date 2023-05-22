@@ -65,10 +65,15 @@ class ApprovalController extends Controller
         ], 200);
     }
     public function approveOrReject(Request $request, $id)
-    {
+    {   
+        $validated = $request->validate([
+            'status' => 'required',
+            'comment' => 'nullable',
+            
+        ]);                               
        
         $data = Approval::find($id);
-        $data->update(['status' => $request->status]);
+        $data->update(['status' => $request->status, 'comment' => $request->comment]);
         $data->requisition()->update(['status' => $request->status]);
 
         return response()->json([

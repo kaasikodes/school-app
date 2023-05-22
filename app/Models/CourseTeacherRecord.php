@@ -16,6 +16,7 @@ class CourseTeacherRecord extends Model
     use HasFactory;
     protected $table = 'course_teacher_records';
     protected $guarded = [];
+    protected $with = ['level','course','staff.user'];
 
     public function course()
     {
