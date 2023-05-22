@@ -23,7 +23,8 @@ echo "Running migrations..."
 # php artisan migrate
 
 # to empty the db and run migrations from beginning (force is done to ignore the prompt that asks 4 confirmation)
-php artisan db:table --table=migrations --truncate
+# php artisan db:table --table=migrations --truncate
+php artisan migrate:reset --force
 
 php artisan migrate:refresh --force
 
