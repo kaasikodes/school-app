@@ -19,5 +19,9 @@ echo "Caching routes..."
 php artisan route:cache
 
 echo "Running migrations..."
-php artisan migrate
+# to run new migrations
+# php artisan migrate
+
+# to empty the db and run migrations from beginning
+php artisan migrate:refresh
 
