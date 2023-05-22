@@ -17,6 +17,18 @@ class SchoolSessionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function index(Request $request, $id)
+    {
+        //
+        $perPage = $request->limit ? $request->limit : 4;
+
+        $results = SchoolSession::where('school_id',$id)->paginate($perPage);
+        if($request->searchTerm){
+            $results = SchoolSession::where('school_id',$id)->whereLike(['name','ends','starts'], $request->searchTerm)->paginate($perPage);
+        }
+
+        return $results;
+    }
     public function endSession($id)
     {
         $session= SchoolSession::find($id);
@@ -47,7 +59,7 @@ class SchoolSessionController extends Controller
     public function issueSessionResult($id)
     {
         $session= SchoolSession::find($id);
-        $courseTeachersInViolation = CourseTeacherRecord::where(['school_session_id', $session->id, 'submitted_assessment_for_compilation' => 'NO'])->get();
+        $courseTeachersInViolation = CourseTeacherRecord::where(['school_session_id'=> $session->id, 'submitted_assessment_for_compilation' => 'NO'])->get();
         $courseTeachersInViolationCount = $courseTeachersInViolation->count();
         if($courseTeachersInViolationCount > 0){
             return response()->json([
@@ -72,8 +84,10 @@ class SchoolSessionController extends Controller
 
 
     }
+    
     public function schoolSessionTaskCompletion($id)
     {
+        
         //
 
         $session= SchoolSession::find($id);
@@ -154,18 +168,7 @@ class SchoolSessionController extends Controller
 
         ], 200);
     }
-    public function index(Request $request, $id)
-    {
-        //
-        $perPage = $request->limit ? $request->limit : 4;
-
-        $results = SchoolSession::where('school_id',$id)->paginate($perPage);
-        if($request->searchTerm){
-            $results = SchoolSession::where('school_id',$id)->whereLike(['name','ends','starts',], $request->searchTerm)->paginate($perPage);
-        }
-
-        return $results;
-    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -290,32 +293,7 @@ class SchoolSessionController extends Controller
 
         ], 200);
     }
-    public function endSession(Request $request, $id){
-        $session =SchoolSession::find($id);
-        if($session ===  null){
-            return response()->json([
-                'status' => false,
-                'message' => 'School session doesn\'t exist.',
-                'data' => null,
-               
-              
-    
-            ], 400);
-
-        }
-        $session->ends = $request->ends;
-        $session->save();
-        return response()->json([
-            'status' => true,
-            'message' => 'School has ended successfully',
-            'data' => $session,
-           
-          
-
-        ], 200);
-
-
-    }
+   
 
 
     /**
