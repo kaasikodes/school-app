@@ -20,7 +20,7 @@ php artisan route:cache
 
 echo "Running migrations..."
 # to run new migrations - should be this by default
-php artisan migrate
+php artisan migrate --force
 
 # to empty the db and run migrations from beginning (force is done to ignore the prompt that asks 4 confirmation)
 # php artisan db:table --table=migrations --truncate
